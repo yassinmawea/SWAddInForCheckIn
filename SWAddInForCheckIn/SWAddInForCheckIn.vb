@@ -90,7 +90,7 @@ Public Class SWAddInForCheckIn
 
             If boolstatus Then
                 boolstatus = swDraw.SaveAs4(filenameDXF, swSaveAsVersion_e.swSaveAsCurrentVersion, swSaveAsOptions_e.swSaveAsOptions_Silent, lErrors, lWarnings)
-                Debug.Print("DXF saved? -------------> " & boolstatus)
+                Debug.Print("DXF saved? ------sure----> " & boolstatus)
             End If
 
         End If
