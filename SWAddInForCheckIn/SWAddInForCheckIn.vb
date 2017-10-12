@@ -3,6 +3,7 @@ Imports SolidWorks.Interop.sldworks
 Imports SolidWorks.Interop.swpublished
 Imports SolidWorks.Interop.swconst
 Imports System.Runtime.InteropServices
+Imports System.Diagnostics.Process
 
 <Guid("9f23caa0-087f-4f42-b93d-bf02bcd8359c"), ClassInterface(ClassInterfaceType.None), ProgId("SWAddIn - INVENPRO")>
 Public Class SWAddInForCheckIn
@@ -24,79 +25,118 @@ Public Class SWAddInForCheckIn
     End Sub
 
     Public Sub OnCmd(poCmd As IEnoCmd) Implements IEnoAddIn.OnCmd
+        On Error Resume Next
+
         Dim swApp As SldWorks
         Dim swModel As ModelDoc2
         Dim swModelDocExt As ModelDocExtension
         Dim swExportPDFData As ExportPdfData
         Dim swDraw As DrawingDoc
         Dim boolstatus As Boolean
+        Dim boolstatusActivateSheet As Boolean
+        Dim boolstatusDXF As Boolean
         Dim filenameFull As String
         Dim filenamePDF As String
         Dim filenameDXF As String
         Dim lErrors As Long
         Dim lWarnings As Long
+        Dim iErrors As Integer
+        Dim iWarnings As Integer
         Dim strSheetPDFName(1) As String
         Dim varSheetPDFName As Array
         Dim strSheetDXFName(1) As String
         Dim varSheetDXFName As Array
         Dim MyPath As String
         Dim MyExt As String
+        Dim sel As IEnoSelection
+        Dim item As IEnoSelectionItem
 
-        Debug.Print("Test")
+        sel = poCmd.Selection
+        For Each item In sel
+            Dim path As String
+            path = item.GetProperty(EnoSelItemProp.Enospi_Path)
+            Debug.Print("What is choosen ----> " + path)
+        Next
+
 
         swApp = GetObject(, "SldWorks.Application")
         swApp.Visible = True
 
-        ' Open specified drawing
-        swModel = swApp.ActiveDoc
-        swModelDocExt = swModel.Extension
-        swDraw = swModel
-        swExportPDFData = swApp.GetExportFileData(1)
+        'If SW is already running, then
+        If Err.Number = 0 Then
 
-        ' filename = "D:\Documents\Yassin Work\INVENPRO\Testing\PDF Output.PDF"
-        filenameFull = swModel.GetPathName
-        Debug.Print(swModel.GetPathName)
+            For Each item In sel
 
-        'filenamePDF = Replace(filename, ".SLDDRW", ".pdf")
-        'filenameDXF = Replace(filename, ".SLDDRW", ".dxf")
+                ' Open specified drawing
+                'swModel = swApp.ActiveDoc
+                'swModelDocExt = swModel.Extension
+                'swDraw = swModel
+                'swExportPDFData = swApp.GetExportFileData(1)
 
-        MyPath = filenameFull
-        filenameFull = Dir(filenameFull)                           ' will contain "SolidPart.SLDDRW"
-        MyPath = Left(MyPath, InStr(MyPath, filenameFull) - 1)     ' will contain "C:\Folder1\Folder2\"
-        MyExt = Right(filenameFull, 6)                             ' will contain "SLDDRW"
-        filenameFull = Left(filenameFull, InStr(filenameFull, ".") - 1)   ' will contain "SolidPart"
-        filenamePDF = "\\3dexperience17x\derivedoutput\" & filenameFull & ".pdf"          ' will contain "Default(SolidPart).pdf"
-        filenameDXF = "\\3dexperience17x\derivedoutput\" & filenameFull & ".dxf"          ' will contain "Default(SolidPart).dxf"
-
-        ' Names of the sheets
-        strSheetPDFName(0) = "Sheet1"
-        strSheetDXFName(0) = "Sheet2"
-
-        varSheetPDFName = strSheetPDFName
-        varSheetDXFName = strSheetDXFName
-
-        If swModel.GetType = swDocumentTypes_e.swDocDRAWING Then
-            If swExportPDFData Is Nothing Then MsgBox("Nothing")
-            boolstatus = swExportPDFData.SetSheets(swExportDataSheetsToExport_e.swExportData_ExportSpecifiedSheets, varSheetPDFName)
-            swExportPDFData.ViewPdfAfterSaving = False
-
-            boolstatus = swModelDocExt.SaveAs(filenamePDF, 0, 0, swExportPDFData, lErrors, lWarnings)
+                ' filename = "D:\Documents\Yassin Work\INVENPRO\Testing\PDF Output.PDF"
+                'filenameFull = swModel.GetPathName
 
 
-            ' Generate DXF code is here
-            swApp.SetUserPreferenceIntegerValue(swUserPreferenceIntegerValue_e.swDxfMultiSheetOption, swDxfMultisheet_e.swDxfActiveSheetOnly)
+                filenameFull = item.GetProperty(EnoSelItemProp.Enospi_Path)
+                Debug.Print("Processing -->" + filenameFull)
+                MyExt = Right(filenameFull, 6)                             ' will contain "SLDDRW"
 
-            boolstatus = swDraw.ActivateSheet(strSheetDXFName(0))
+                If String.Compare(MyExt, "SLDDRW", True) = 0 Then
+                    'filenamePDF = Replace(filename, ".SLDDRW", ".pdf")
+                    'filenameDXF = Replace(filename, ".SLDDRW", ".dxf")
 
-            If boolstatus Then
-                boolstatus = swDraw.SaveAs4(filenameDXF, swSaveAsVersion_e.swSaveAsCurrentVersion, swSaveAsOptions_e.swSaveAsOptions_Silent, lErrors, lWarnings)
-                Debug.Print("DXF saved? ------sure----> " & boolstatus)
-            End If
+                    MyPath = filenameFull
+                    filenameFull = Dir(filenameFull)                           ' will contain "SolidPart.SLDDRW"
+                    MyPath = Left(MyPath, InStr(MyPath, filenameFull) - 1)     ' will contain "C:\Folder1\Folder2\"
 
+                    filenameFull = Left(filenameFull, InStr(filenameFull, ".") - 1)   ' will contain "SolidPart"
+                    filenamePDF = "\\3dexperience17x\derivedoutput\" & filenameFull & ".pdf"          ' will contain "Default(SolidPart).pdf"
+                    filenameDXF = "\\3dexperience17x\derivedoutput\" & filenameFull & ".dxf"          ' will contain "Default(SolidPart).dxf"
+
+
+                    swDraw = swApp.OpenDoc6(MyPath, swDocumentTypes_e.swDocDRAWING, swOpenDocOptions_e.swOpenDocOptions_ReadOnly, "", iErrors, iWarnings)
+                    swModel = swApp.ActiveDoc
+                    swModelDocExt = swModel.Extension
+                    swExportPDFData = swApp.GetExportFileData(1)
+
+                    ' Names of the sheets
+                    strSheetPDFName(0) = "Sheet1"
+                    strSheetDXFName(0) = "Sheet2"
+
+                    varSheetPDFName = strSheetPDFName
+                    varSheetDXFName = strSheetDXFName
+
+
+                    If swExportPDFData Is Nothing Then MsgBox("Nothing")
+                    boolstatus = swExportPDFData.SetSheets(swExportDataSheetsToExport_e.swExportData_ExportSpecifiedSheets, varSheetPDFName)
+                    swExportPDFData.ViewPdfAfterSaving = False
+
+                    boolstatus = swModelDocExt.SaveAs(filenamePDF, 0, 0, swExportPDFData, lErrors, lWarnings)
+
+
+                    ' Generate DXF code is here
+                    swApp.SetUserPreferenceIntegerValue(swUserPreferenceIntegerValue_e.swDxfMultiSheetOption, swDxfMultisheet_e.swDxfActiveSheetOnly)
+
+                    Debug.Print("Error is here 0")
+                    boolstatusActivateSheet = swDraw.ActivateSheet(strSheetDXFName(0))
+                    Debug.Print("Error is here")
+                    If boolstatusActivateSheet Then
+                        Debug.Print("Error is here 1")
+                        boolstatusDXF = swDraw.SaveAs4(filenameDXF, swSaveAsVersion_e.swSaveAsCurrentVersion, swSaveAsOptions_e.swSaveAsOptions_Silent, lErrors, lWarnings)
+                        Debug.Print("DXF saved? ------sure----> " & boolstatusDXF)
+                    End If
+
+                Else
+                    Debug.Print("This is not Drawing -->" + filenameFull)
+
+                End If
+
+
+            Next
+
+        Else
+            'code to handle check in from Explorer
         End If
-
-
-
 
     End Sub
 End Class
