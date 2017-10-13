@@ -57,6 +57,8 @@ Public Class SWAddInForCheckIn
         Dim partToClosePRT As String
         Dim partToCloseASM As String
         Dim bValue As Boolean
+        Dim progressBar As Form1
+        Dim count As Integer
 
         partsToClose = New List(Of String)
         sel = poCmd.Selection
@@ -65,7 +67,12 @@ Public Class SWAddInForCheckIn
             path = item.GetProperty(EnoSelItemProp.Enospi_Path)
             Debug.Print("What is choosen ----> " + path)
         Next
+        count = sel.Count
+        Debug.Print(count)
         swApp = CreateObject("SldWorks.Application")
+        progressBar = New Form1
+        progressBar.setMaximum(count)
+        progressBar.Show()
 
         For Each item In sel
             ' Open specified drawing
@@ -138,13 +145,15 @@ Public Class SWAddInForCheckIn
 
                     swApp.QuitDoc(filenameFull)
 
+                    progressBar.increaseProgress()
+
                 End If
 
 
 
             Else
                 partsToClose.Add(filenameFull)
-
+                progressBar.increaseProgress()
             End If
 
         Next
@@ -158,5 +167,8 @@ Public Class SWAddInForCheckIn
             swModel = swApp.ActivateDoc3(partToCloseASM, False, swRebuildOnActivation_e.swDontRebuildActiveDoc, iErrors)
             swApp.QuitDoc("")
         Next
+
+        progressBar.Close()
+
     End Sub
 End Class
