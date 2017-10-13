@@ -27,7 +27,7 @@ Public Class SWAddInForCheckIn
     Public Sub OnCmd(poCmd As IEnoCmd) Implements IEnoAddIn.OnCmd
         On Error Resume Next
 
-        Dim swApp As Object
+        Dim swApp As SldWorks
         Dim swModel As ModelDoc2
         Dim boolstatusSWStarts As Boolean
         Dim swModelDocExt As ModelDocExtension
@@ -37,6 +37,7 @@ Public Class SWAddInForCheckIn
         Dim boolstatusActivateSheet As Boolean
         Dim boolstatusDXF As Boolean
         Dim filenameFull As String
+        Dim filenameFullForerver As String
         Dim filenamePDF As String
         Dim filenameDXF As String
         Dim lErrors As Long
@@ -51,13 +52,20 @@ Public Class SWAddInForCheckIn
         Dim MyExt As String
         Dim sel As IEnoSelection
         Dim item As IEnoSelectionItem
+        Dim partsToClose As List(Of String)
+        Dim partToClose As String
+        Dim partToClosePRT As String
+        Dim partToCloseASM As String
+        Dim bValue As Boolean
 
+        partsToClose = New List(Of String)
         sel = poCmd.Selection
         For Each item In sel
             Dim path As String
             path = item.GetProperty(EnoSelItemProp.Enospi_Path)
             Debug.Print("What is choosen ----> " + path)
         Next
+        swApp = CreateObject("SldWorks.Application")
 
         For Each item In sel
             ' Open specified drawing
@@ -70,32 +78,37 @@ Public Class SWAddInForCheckIn
             'filenameFull = swModel.GetPathName
 
 
-            filenameFull = item.GetProperty(EnoSelItemProp.Enospi_Path)
-            Debug.Print("Processing -->" + filenameFull)
-            MyExt = Right(filenameFull, 6)                             ' will contain "SLDDRW"
+            filenameFullForerver = item.GetProperty(EnoSelItemProp.Enospi_Path)
+            Debug.Print("Processing -->" + filenameFullForerver)
+            MyExt = Right(filenameFullForerver, 6)                             ' will contain "SLDDRW"
+            MyPath = filenameFullForerver
+            filenameFull = Dir(filenameFullForerver)                           ' will contain "SolidPart.SLDDRW"
+            MyPath = Left(MyPath, InStr(MyPath, filenameFull) - 1)     ' will contain "C:\Folder1\Folder2\"
+            filenameFull = Left(filenameFull, InStr(filenameFull, ".") - 1)   ' will contain "SolidPart"
 
             If String.Compare(MyExt, "SLDDRW", True) = 0 Then
 
-                swApp = CreateObject("SldWorks.Application")
-
-                MyPath = filenameFull
-                filenameFull = Dir(filenameFull)                           ' will contain "SolidPart.SLDDRW"
-                MyPath = Left(MyPath, InStr(MyPath, filenameFull) - 1)     ' will contain "C:\Folder1\Folder2\"
-
-                filenameFull = Left(filenameFull, InStr(filenameFull, ".") - 1)   ' will contain "SolidPart"
                 filenamePDF = "\\3dexperience17x\derivedoutput\" & filenameFull & ".pdf"          ' will contain "Default(SolidPart).pdf"
                 filenameDXF = "\\3dexperience17x\derivedoutput\" & filenameFull & ".dxf"          ' will contain "Default(SolidPart).dxf"
 
                 boolstatusSWStarts = swApp.StartupProcessCompleted
-                Debug.Print("SW Started? ---->" + boolstatusSWStarts)
+                Debug.Print("SW Started? ---->" & boolstatusSWStarts)
+
+                Do While boolstatusSWStarts = False
+                    Threading.Thread.Sleep(500)
+                    boolstatusSWStarts = swApp.StartupProcessCompleted
+                Loop
+
+                Debug.Print("SW Started Now? ---->" & boolstatusSWStarts)
 
                 If boolstatusSWStarts Then
-
-                    swDraw = swApp.OpenDoc6(MyPath, swDocumentTypes_e.swDocDRAWING, swOpenDocOptions_e.swOpenDocOptions_ReadOnly, "", iErrors, iWarnings)
+                    Debug.Print("filenameFullForerver -- > " + filenameFullForerver)
+                    swDraw = swApp.OpenDoc6(filenameFullForerver, swDocumentTypes_e.swDocDRAWING, swOpenDocOptions_e.swOpenDocOptions_ReadOnly, "", iErrors, iWarnings)
+                    Debug.Print("iErrors ---> " & iErrors)
+                    Debug.Print("iWarnings --->" & iWarnings)
                     swModel = swApp.ActiveDoc
                     swModelDocExt = swModel.Extension
                     swExportPDFData = swApp.GetExportFileData(1)
-
                     ' Names of the sheets
                     strSheetPDFName(0) = "Sheet1"
                     strSheetDXFName(0) = "Sheet2"
@@ -109,7 +122,7 @@ Public Class SWAddInForCheckIn
                     swExportPDFData.ViewPdfAfterSaving = False
 
                     boolstatus = swModelDocExt.SaveAs(filenamePDF, 0, 0, swExportPDFData, lErrors, lWarnings)
-                    Debug.Print("PDF Saved? --------->" + boolstatus)
+                    Debug.Print("PDF Saved? --------->" & boolstatus)
 
                     ' Generate DXF code is here
                     swApp.SetUserPreferenceIntegerValue(swUserPreferenceIntegerValue_e.swDxfMultiSheetOption, swDxfMultisheet_e.swDxfActiveSheetOnly)
@@ -120,17 +133,30 @@ Public Class SWAddInForCheckIn
                         Debug.Print("DXF saved? ------sure----> " & boolstatusDXF)
                     End If
 
-                    swApp.ExitApp()
-                swApp = Nothing
+                    filenameFull = swModel.GetTitle
+                    Debug.Print("Title to QuitDoc ---> " + filenameFull)
+
+                    swApp.QuitDoc(filenameFull)
 
                 End If
+
+
+
             Else
-                Debug.Print("This is not Drawing -->" + filenameFull)
+                partsToClose.Add(filenameFull)
 
             End If
 
-
         Next
 
+        For Each partToClose In partsToClose
+            Debug.Print("Part to close ---- > " + partToClose)
+            partToClosePRT = partToClose + ".SLDPRT"
+            partToCloseASM = partToClose + ".SLDASM"
+            swModel = swApp.ActivateDoc3(partToClosePRT, False, swRebuildOnActivation_e.swDontRebuildActiveDoc, iErrors)
+            swApp.QuitDoc("")
+            swModel = swApp.ActivateDoc3(partToCloseASM, False, swRebuildOnActivation_e.swDontRebuildActiveDoc, iErrors)
+            swApp.QuitDoc("")
+        Next
     End Sub
 End Class
