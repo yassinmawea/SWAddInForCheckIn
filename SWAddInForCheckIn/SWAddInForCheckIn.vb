@@ -27,6 +27,7 @@ Public Class SWAddInForCheckIn
     Public Sub OnCmd(poCmd As IEnoCmd) Implements IEnoAddIn.OnCmd
         On Error Resume Next
 
+        Dim server As IEnoServer
         Dim swApp As SldWorks
         Dim swModel As ModelDoc2
         Dim boolstatusSWStarts As Boolean
@@ -59,6 +60,18 @@ Public Class SWAddInForCheckIn
         Dim bValue As Boolean
         Dim progressBar As Form1
         Dim count As Integer
+        Dim serverName As String
+        Dim view As IEnoServerView
+        Dim myProcess As New Process()
+        Dim p() As Process
+        Dim saveStatus As Boolean
+        Dim swNewModel As New ModelDoc2
+        Dim result As Integer
+        Dim checkinFromExplorer As Boolean
+
+        Debug.Print("Server Name from poCmd --> " + poCmd.Server.Name)
+        server = poCmd.Server
+        Debug.Print("Server is logged on? --> " & server.IsLoggedIn)
 
         partsToClose = New List(Of String)
         sel = poCmd.Selection
@@ -69,23 +82,45 @@ Public Class SWAddInForCheckIn
         Next
         count = sel.Count
         Debug.Print(count)
-        swApp = CreateObject("SldWorks.Application")
+
+        p = Process.GetProcessesByName("SLDWORKS")
+        checkinFromExplorer = False
+
+        Debug.Print("P Count --> " & p.Count)
+        If p.Count = 0 Then
+
+            checkinFromExplorer = True
+            'myProcess.StartInfo.UseShellExecute = False
+            myProcess.StartInfo.FileName = "C:\Program Files\SolidWorks Corp\SOLIDWORKS (2)\SLDWORKS.exe"
+            myProcess.StartInfo.WindowStyle = ProcessWindowStyle.Minimized
+            myProcess.Start()
+            Threading.Thread.Sleep(20000)
+
+        End If
+        swApp = GetObject(, "SldWorks.Application")
+
+        If checkinFromExplorer = True Then
+            swApp.Visible = False
+        End If
+
         progressBar = New Form1
         progressBar.setMaximum(count)
+        progressBar.TopMost = True
         progressBar.Show()
 
         For Each item In sel
-            ' Open specified drawing
+            'Open specified drawing
             'swModel = swApp.ActiveDoc
             'swModelDocExt = swModel.Extension
             'swDraw = swModel
             'swExportPDFData = swApp.GetExportFileData(1)
 
-            ' filename = "D:\Documents\Yassin Work\INVENPRO\Testing\PDF Output.PDF"
+            'filename = "D:\Documents\Yassin Work\INVENPRO\Testing\PDF Output.PDF"
             'filenameFull = swModel.GetPathName
 
 
             filenameFullForerver = item.GetProperty(EnoSelItemProp.Enospi_Path)
+            'swApp = GetObject(filenameFullForerver, "SldWorks.Application")
             Debug.Print("Processing -->" + filenameFullForerver)
             MyExt = Right(filenameFullForerver, 6)                             ' will contain "SLDDRW"
             MyPath = filenameFullForerver
@@ -98,23 +133,32 @@ Public Class SWAddInForCheckIn
                 filenamePDF = "\\3dexperience17x\derivedoutput\" & filenameFull & ".pdf"          ' will contain "Default(SolidPart).pdf"
                 filenameDXF = "\\3dexperience17x\derivedoutput\" & filenameFull & ".dxf"          ' will contain "Default(SolidPart).dxf"
 
-                boolstatusSWStarts = swApp.StartupProcessCompleted
-                Debug.Print("SW Started? ---->" & boolstatusSWStarts)
+                boolstatusSWStarts = True
+                'boolstatusSWStarts = swApp.StartupProcessCompleted
+                'Debug.Print("SW Started? ---->" & boolstatusSWStarts)
 
-                Do While boolstatusSWStarts = False
-                    Threading.Thread.Sleep(500)
-                    boolstatusSWStarts = swApp.StartupProcessCompleted
-                Loop
+                'Do While boolstatusSWStarts = False
+                'Threading.Thread.Sleep(3000)
+                'swApp = GetObject(, "SldWorks.Application")
+                'boolstatusSWStarts = swApp.StartupProcessCompleted
+                'Debug.Print("swApp working?? >> " & swApp.Visible)
+                'Loop
 
-                Debug.Print("SW Started Now? ---->" & boolstatusSWStarts)
+                'Debug.Print("SW Started Now? ---->" & boolstatusSWStarts)
 
                 If boolstatusSWStarts Then
                     Debug.Print("filenameFullForerver -- > " + filenameFullForerver)
-                    swDraw = swApp.OpenDoc6(filenameFullForerver, swDocumentTypes_e.swDocDRAWING, swOpenDocOptions_e.swOpenDocOptions_ReadOnly, "", iErrors, iWarnings)
-                    Debug.Print("iErrors ---> " & iErrors)
-                    Debug.Print("iWarnings --->" & iWarnings)
+                    swDraw = swApp.OpenDoc6(filenameFullForerver, swDocumentTypes_e.swDocDRAWING, swOpenDocOptions_e.swOpenDocOptions_Silent, "", iErrors, iWarnings)
+
+                    Threading.Thread.Sleep(5000)
+
                     swModel = swApp.ActiveDoc
-                    swModelDocExt = swModel.Extension
+                    saveStatus = swModel.Save3(swSaveAsOptions_e.swSaveAsOptions_Silent, iErrors, iWarnings)
+
+                    result = swApp.CloseAndReopen(swModel, swCloseReopenOption_e.swCloseReopenOption_DiscardChanges, swNewModel)
+                    Threading.Thread.Sleep(5000)
+
+                    swModelDocExt = swNewModel.Extension
                     swExportPDFData = swApp.GetExportFileData(1)
                     ' Names of the sheets
                     strSheetPDFName(0) = "Sheet1"
@@ -140,16 +184,16 @@ Public Class SWAddInForCheckIn
                         Debug.Print("DXF saved? ------sure----> " & boolstatusDXF)
                     End If
 
-                    filenameFull = swModel.GetTitle
-                    Debug.Print("Title to QuitDoc ---> " + filenameFull)
+                    filenameFull = swNewModel.GetTitle
 
-                    swApp.QuitDoc(filenameFull)
+                    Debug.Print("Title to QuitDoc ---> " + filenameFull)
+                    'swApp.QuitDoc(filenameFull)
+
+                    UploadPDFDXFtoENOVIA(server, item)
 
                     progressBar.increaseProgress()
 
                 End If
-
-
 
             Else
                 partsToClose.Add(filenameFull)
@@ -170,5 +214,46 @@ Public Class SWAddInForCheckIn
 
         progressBar.Close()
 
+        If checkinFromExplorer = True Then
+            myProcess.Kill()
+        End If
+
     End Sub
+
+    Private Sub UploadPDFDXFtoENOVIA(ByVal server As IEnoServer, ByVal item As IEnoSelectionItem)
+
+        Dim file As IEnoFile
+        Dim attribs As IEnoAttributeValues
+        Dim partNo(1) As String
+        Dim rev(1) As String
+        Dim jpo As IEnoJPO
+        Dim result As String
+        Dim parser(2) As String
+
+        Try
+
+            file = server.GetFileFromPath(item.Path)
+            Debug.Print("file name is --> " + file.Name)
+
+            attribs = file.GetAttributes()
+            partNo(0) = attribs.GetAtt("$$name$$", "@")
+            rev(0) = attribs.GetAtt("$$revision$$", "@")
+
+            parser(0) = partNo(0)
+            parser(1) = Left(rev(0), InStr(rev(0), ".") - 1)
+
+            Debug.Print("Coming inside UploadPDFDXFtoENOVIA")
+            Debug.Print("partNo --> " + partNo(0))
+            Debug.Print("rev --> " + parser(1))
+
+            jpo = server.CreateUtility(EnoObjectType.EnoObj_EnoJPO)
+            result = jpo.Execute("INV_SWCheckJPO", "createConnectDerivedOutput", parser)
+
+        Catch e As Exception
+            MsgBox(Err.Description)
+        End Try
+
+    End Sub
+
+
 End Class
