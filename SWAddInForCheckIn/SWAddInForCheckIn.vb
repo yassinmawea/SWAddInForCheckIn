@@ -4,6 +4,7 @@ Imports SolidWorks.Interop.swpublished
 Imports SolidWorks.Interop.swconst
 Imports System.Runtime.InteropServices
 Imports System.Diagnostics.Process
+Imports swBendLine
 
 <Guid("9f23caa0-087f-4f42-b93d-bf02bcd8359c"), ClassInterface(ClassInterfaceType.None), ProgId("SWAddIn - INVENPRO")>
 Public Class SWAddInForCheckIn
@@ -68,6 +69,8 @@ Public Class SWAddInForCheckIn
         Dim swNewModel As New ModelDoc2
         Dim result As Integer
         Dim checkinFromExplorer As Boolean
+        Dim dllobj As New swBendLine.swBendLine
+        Dim listPartsAndAssembly As New List(Of IEnoSelectionItem)
 
         Debug.Print("Server Name from poCmd --> " + poCmd.Server.Name)
         server = poCmd.Server
@@ -77,8 +80,19 @@ Public Class SWAddInForCheckIn
         sel = poCmd.Selection
         For Each item In sel
             Dim path As String
+
+
             path = item.GetProperty(EnoSelItemProp.Enospi_Path)
             Debug.Print("What is choosen ----> " + path)
+
+            MyExt = Right(path, 6)
+
+            If String.Compare(MyExt, "SLDDRW", True) = 0 Then
+
+                listPartsAndAssembly.Add(item)
+
+            End If
+
         Next
         count = sel.Count
         Debug.Print(count)
@@ -107,6 +121,16 @@ Public Class SWAddInForCheckIn
         progressBar.setMaximum(count)
         progressBar.TopMost = True
         progressBar.Show()
+
+        'Get List of Parts/Assembly and close reopen to sync PartNo and Rev
+        For Each item In listPartsAndAssembly
+            filenameFullForerver = item.GetProperty(EnoSelItemProp.Enospi_Path)
+            swModel = swApp.OpenDoc6(filenameFullForerver, swDocumentTypes_e.swDocDRAWING, swOpenDocOptions_e.swOpenDocOptions_Silent, "", iErrors, iWarnings)
+            swModel = swApp.ActiveDoc
+            saveStatus = swModel.Save3(swSaveAsOptions_e.swSaveAsOptions_Silent, iErrors, iWarnings)
+            result = swApp.CloseAndReopen(swModel, swCloseReopenOption_e.swCloseReopenOption_DiscardChanges, swNewModel)
+            Threading.Thread.Sleep(2000)
+        Next
 
         For Each item In sel
             'Open specified drawing
@@ -151,6 +175,8 @@ Public Class SWAddInForCheckIn
                     swDraw = swApp.OpenDoc6(filenameFullForerver, swDocumentTypes_e.swDocDRAWING, swOpenDocOptions_e.swOpenDocOptions_Silent, "", iErrors, iWarnings)
 
                     Threading.Thread.Sleep(5000)
+
+                    dllobj.CreateBendLine()
 
                     swModel = swApp.ActiveDoc
                     saveStatus = swModel.Save3(swSaveAsOptions_e.swSaveAsOptions_Silent, iErrors, iWarnings)
@@ -200,16 +226,6 @@ Public Class SWAddInForCheckIn
                 progressBar.increaseProgress()
             End If
 
-        Next
-
-        For Each partToClose In partsToClose
-            Debug.Print("Part to close ---- > " + partToClose)
-            partToClosePRT = partToClose + ".SLDPRT"
-            partToCloseASM = partToClose + ".SLDASM"
-            swModel = swApp.ActivateDoc3(partToClosePRT, False, swRebuildOnActivation_e.swDontRebuildActiveDoc, iErrors)
-            swApp.QuitDoc("")
-            swModel = swApp.ActivateDoc3(partToCloseASM, False, swRebuildOnActivation_e.swDontRebuildActiveDoc, iErrors)
-            swApp.QuitDoc("")
         Next
 
         progressBar.Close()
