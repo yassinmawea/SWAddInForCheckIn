@@ -4,7 +4,7 @@ Imports SolidWorks.Interop.swpublished
 Imports SolidWorks.Interop.swconst
 Imports System.Runtime.InteropServices
 Imports System.Diagnostics.Process
-Imports swBendLine
+Imports EnoviaSW2Lib
 
 <Guid("9f23caa0-087f-4f42-b93d-bf02bcd8359c"), ClassInterface(ClassInterfaceType.None), ProgId("SWAddIn - INVENPRO")>
 Public Class SWAddInForCheckIn
@@ -35,6 +35,8 @@ Public Class SWAddInForCheckIn
         Dim swModelDocExt As ModelDocExtension
         Dim swExportPDFData As ExportPdfData
         Dim swDraw As DrawingDoc
+        Dim swPart As PartDoc
+        Dim swAssembly As AssemblyDoc
         Dim boolstatus As Boolean
         Dim boolstatusActivateSheet As Boolean
         Dim boolstatusDXF As Boolean
@@ -54,7 +56,7 @@ Public Class SWAddInForCheckIn
         Dim MyExt As String
         Dim sel As IEnoSelection
         Dim item As IEnoSelectionItem
-        Dim partsToClose As List(Of String)
+        Dim partsToClose As New List(Of String)
         Dim partToClose As String
         Dim partToClosePRT As String
         Dim partToCloseASM As String
@@ -69,174 +71,172 @@ Public Class SWAddInForCheckIn
         Dim swNewModel As New ModelDoc2
         Dim result As Integer
         Dim checkinFromExplorer As Boolean
-        Dim dllobj As New swBendLine.swBendLine
         Dim listPartsAndAssembly As New List(Of IEnoSelectionItem)
+        Dim configMgr As ConfigurationManager
+        Dim cusPropMgr As CustomPropertyManager
+        Dim config As Configuration
+        Dim lRetVal As Integer
+        Dim file As IEnoFile
+        Dim attribs As IEnoAttributeValues
+        Dim partNo(1) As String
+        Dim vConfigNameArr As Array
+        Dim confname As String
+        Dim completeMessage As Form2
+        Dim sync As EnoviaSWAddIn
 
+        ' Retrieving server information
         Debug.Print("Server Name from poCmd --> " + poCmd.Server.Name)
         server = poCmd.Server
         Debug.Print("Server is logged on? --> " & server.IsLoggedIn)
 
-        partsToClose = New List(Of String)
+        ' Test to see how many list were in Selection
         sel = poCmd.Selection
-        For Each item In sel
-            Dim path As String
-
-
-            path = item.GetProperty(EnoSelItemProp.Enospi_Path)
-            Debug.Print("What is choosen ----> " + path)
-
-            MyExt = Right(path, 6)
-
-            If String.Compare(MyExt, "SLDDRW", True) = 0 Then
-
-                listPartsAndAssembly.Add(item)
-
-            End If
-
-        Next
         count = sel.Count
         Debug.Print(count)
 
+        ' Open SW if it's not opened yet
         p = Process.GetProcessesByName("SLDWORKS")
         checkinFromExplorer = False
-
         Debug.Print("P Count --> " & p.Count)
         If p.Count = 0 Then
-
             checkinFromExplorer = True
-            'myProcess.StartInfo.UseShellExecute = False
             myProcess.StartInfo.FileName = "C:\Program Files\SolidWorks Corp\SOLIDWORKS (2)\SLDWORKS.exe"
             myProcess.StartInfo.WindowStyle = ProcessWindowStyle.Minimized
             myProcess.Start()
             Threading.Thread.Sleep(20000)
-
         End If
         swApp = GetObject(, "SldWorks.Application")
 
-        If checkinFromExplorer = True Then
-            swApp.Visible = False
-        End If
-
+        ' Create a progress bar to show derive output progress
         progressBar = New Form1
         progressBar.setMaximum(count)
         progressBar.TopMost = True
         progressBar.Show()
 
-        'Get List of Parts/Assembly and close reopen to sync PartNo and Rev
-        For Each item In listPartsAndAssembly
-            filenameFullForerver = item.GetProperty(EnoSelItemProp.Enospi_Path)
-            swModel = swApp.OpenDoc6(filenameFullForerver, swDocumentTypes_e.swDocDRAWING, swOpenDocOptions_e.swOpenDocOptions_Silent, "", iErrors, iWarnings)
-            swModel = swApp.ActiveDoc
-            saveStatus = swModel.Save3(swSaveAsOptions_e.swSaveAsOptions_Silent, iErrors, iWarnings)
-            result = swApp.CloseAndReopen(swModel, swCloseReopenOption_e.swCloseReopenOption_DiscardChanges, swNewModel)
-            Threading.Thread.Sleep(2000)
+
+        ' Creating list of parts and assembly for synchronization later
+        For Each item In sel
+            Dim path As String
+            path = item.GetProperty(EnoSelItemProp.Enospi_Path)
+            Debug.Print("What is choosen ----> " + path)
+            MyExt = Right(path, 6)
+            If String.Compare(MyExt, "SLDPRT", True) = 0 Then
+                swPart = swApp.OpenDoc6(path, swDocumentTypes_e.swDocPART, swOpenDocOptions_e.swOpenDocOptions_ReadOnly, "", iErrors, iWarnings)
+                Debug.Print("Model opened")
+                sync = New EnoviaSWAddIn
+                sync.Synchronize()
+                'swApp.QuitDoc("")
+            ElseIf String.Compare(MyExt, "SLDASM", True) = 0 Then
+                swAssembly = swApp.OpenDoc6(path, swDocumentTypes_e.swDocASSEMBLY, swOpenDocOptions_e.swOpenDocOptions_ReadOnly, "", iErrors, iWarnings)
+                sync = New EnoviaSWAddIn
+                sync.Synchronize()
+                swApp.QuitDoc("")
+            End If
         Next
 
+        ' Iterating each item in selection to retrieve the path of drawing
+        ' and subsequently create the path to temporarily store PDF and DXF
         For Each item In sel
-            'Open specified drawing
-            'swModel = swApp.ActiveDoc
-            'swModelDocExt = swModel.Extension
-            'swDraw = swModel
-            'swExportPDFData = swApp.GetExportFileData(1)
-
-            'filename = "D:\Documents\Yassin Work\INVENPRO\Testing\PDF Output.PDF"
-            'filenameFull = swModel.GetPathName
-
-
             filenameFullForerver = item.GetProperty(EnoSelItemProp.Enospi_Path)
-            'swApp = GetObject(filenameFullForerver, "SldWorks.Application")
             Debug.Print("Processing -->" + filenameFullForerver)
             MyExt = Right(filenameFullForerver, 6)                             ' will contain "SLDDRW"
             MyPath = filenameFullForerver
             filenameFull = Dir(filenameFullForerver)                           ' will contain "SolidPart.SLDDRW"
             MyPath = Left(MyPath, InStr(MyPath, filenameFull) - 1)     ' will contain "C:\Folder1\Folder2\"
             filenameFull = Left(filenameFull, InStr(filenameFull, ".") - 1)   ' will contain "SolidPart"
-
             If String.Compare(MyExt, "SLDDRW", True) = 0 Then
 
                 filenamePDF = "\\3dexperience17x\derivedoutput\" & filenameFull & ".pdf"          ' will contain "Default(SolidPart).pdf"
                 filenameDXF = "\\3dexperience17x\derivedoutput\" & filenameFull & ".dxf"          ' will contain "Default(SolidPart).dxf"
 
-                boolstatusSWStarts = True
-                'boolstatusSWStarts = swApp.StartupProcessCompleted
-                'Debug.Print("SW Started? ---->" & boolstatusSWStarts)
+                ' Open drawing, save, close, and reopen for synchronization
+                swDraw = swApp.OpenDoc6(filenameFullForerver, swDocumentTypes_e.swDocDRAWING, swOpenDocOptions_e.swOpenDocOptions_Silent, "", iErrors, iWarnings)
 
-                'Do While boolstatusSWStarts = False
-                'Threading.Thread.Sleep(3000)
-                'swApp = GetObject(, "SldWorks.Application")
-                'boolstatusSWStarts = swApp.StartupProcessCompleted
-                'Debug.Print("swApp working?? >> " & swApp.Visible)
-                'Loop
+                Threading.Thread.Sleep(5000)
 
-                'Debug.Print("SW Started Now? ---->" & boolstatusSWStarts)
+                swModel = swApp.ActiveDoc
+                swModelDocExt = swModel.Extension
+                saveStatus = swModel.Save3(swSaveAsOptions_e.swSaveAsOptions_Silent, iErrors, iWarnings)
 
-                If boolstatusSWStarts Then
-                    Debug.Print("filenameFullForerver -- > " + filenameFullForerver)
-                    swDraw = swApp.OpenDoc6(filenameFullForerver, swDocumentTypes_e.swDocDRAWING, swOpenDocOptions_e.swOpenDocOptions_Silent, "", iErrors, iWarnings)
+                vConfigNameArr = swModel.GetConfigurationNames()
+                For Each confname In vConfigNameArr
+                    Debug.Print("confname --> " + confname)
+                Next
 
-                    Threading.Thread.Sleep(5000)
+                sync = New EnoviaSWAddIn
+                sync.Synchronize()
 
-                    dllobj.CreateBendLine()
+                ''''''TEMPORARY COMMENTED''''''
+                'result = swApp.CloseAndReopen(swModel, swCloseReopenOption_e.swCloseReopenOption_ReadOnly, swNewModel)
+                'Threading.Thread.Sleep(20000)
 
-                    swModel = swApp.ActiveDoc
-                    saveStatus = swModel.Save3(swSaveAsOptions_e.swSaveAsOptions_Silent, iErrors, iWarnings)
+                swModelDocExt = swNewModel.Extension
+                swExportPDFData = swApp.GetExportFileData(1)
+                ' Names of the sheets
+                strSheetPDFName(0) = "Sheet1"
+                strSheetDXFName(0) = "Sheet2"
 
-                    result = swApp.CloseAndReopen(swModel, swCloseReopenOption_e.swCloseReopenOption_DiscardChanges, swNewModel)
-                    Threading.Thread.Sleep(5000)
+                varSheetPDFName = strSheetPDFName
+                varSheetDXFName = strSheetDXFName
 
-                    swModelDocExt = swNewModel.Extension
-                    swExportPDFData = swApp.GetExportFileData(1)
-                    ' Names of the sheets
-                    strSheetPDFName(0) = "Sheet1"
-                    strSheetDXFName(0) = "Sheet2"
+                ' Generate PDF code is here
+                If swExportPDFData Is Nothing Then MsgBox("Nothing")
+                boolstatus = swExportPDFData.SetSheets(swExportDataSheetsToExport_e.swExportData_ExportSpecifiedSheets, varSheetPDFName)
+                swExportPDFData.ViewPdfAfterSaving = False
 
-                    varSheetPDFName = strSheetPDFName
-                    varSheetDXFName = strSheetDXFName
+                boolstatus = swModelDocExt.SaveAs(filenamePDF, 0, 0, swExportPDFData, lErrors, lWarnings)
+                Debug.Print("PDF Saved? --------->" & boolstatus)
 
+                ' Generate DXF code is here
+                swApp.SetUserPreferenceIntegerValue(swUserPreferenceIntegerValue_e.swDxfMultiSheetOption, swDxfMultisheet_e.swDxfActiveSheetOnly)
 
-                    If swExportPDFData Is Nothing Then MsgBox("Nothing")
-                    boolstatus = swExportPDFData.SetSheets(swExportDataSheetsToExport_e.swExportData_ExportSpecifiedSheets, varSheetPDFName)
-                    swExportPDFData.ViewPdfAfterSaving = False
-
-                    boolstatus = swModelDocExt.SaveAs(filenamePDF, 0, 0, swExportPDFData, lErrors, lWarnings)
-                    Debug.Print("PDF Saved? --------->" & boolstatus)
-
-                    ' Generate DXF code is here
-                    swApp.SetUserPreferenceIntegerValue(swUserPreferenceIntegerValue_e.swDxfMultiSheetOption, swDxfMultisheet_e.swDxfActiveSheetOnly)
-
-                    boolstatusActivateSheet = swDraw.ActivateSheet(strSheetDXFName(0))
-                    If boolstatusActivateSheet Then
-                        boolstatusDXF = swDraw.SaveAs4(filenameDXF, swSaveAsVersion_e.swSaveAsCurrentVersion, swSaveAsOptions_e.swSaveAsOptions_Silent, lErrors, lWarnings)
-                        Debug.Print("DXF saved? ------sure----> " & boolstatusDXF)
-                    End If
-
-                    filenameFull = swNewModel.GetTitle
-
-                    Debug.Print("Title to QuitDoc ---> " + filenameFull)
-                    'swApp.QuitDoc(filenameFull)
-
-                    UploadPDFDXFtoENOVIA(server, item)
-
-                    progressBar.increaseProgress()
-
+                boolstatusActivateSheet = swDraw.ActivateSheet(strSheetDXFName(0))
+                If boolstatusActivateSheet Then
+                    boolstatusDXF = swDraw.SaveAs4(filenameDXF, swSaveAsVersion_e.swSaveAsCurrentVersion, swSaveAsOptions_e.swSaveAsOptions_Silent, lErrors, lWarnings)
+                    Debug.Print("DXF saved? ------sure----> " & boolstatusDXF)
                 End If
 
+                filenameFull = swNewModel.GetTitle
+
+                ' Quit the drawing code is here if necessary 
+                'Debug.Print("Title to QuitDoc ---> " + filenameFull)
+                'swApp.QuitDoc(filenameFull)
+
+                ' Invoke JPO to upload PDF and DXF to server
+                UploadPDFDXFtoENOVIA(server, item)
+
+                ' Increase progress as method is done
+                progressBar.increaseProgress()
+
             Else
-                partsToClose.Add(filenameFull)
                 progressBar.increaseProgress()
             End If
-
         Next
 
+        ' Close 
         progressBar.Close()
+        swApp.UserControl = True
+        swApp = Nothing
+        swModel = Nothing
+        swModelDocExt = Nothing
+        swDraw = Nothing
 
+        completeMessage = New Form2
+        completeMessage.Show()
+
+        Debug.Print("Crashed?")
+
+        ' If SW was not opened in the first place, then  close SW.
         If checkinFromExplorer = True Then
             myProcess.Kill()
         End If
 
+
+
     End Sub
 
-    Private Sub UploadPDFDXFtoENOVIA(ByVal server As IEnoServer, ByVal item As IEnoSelectionItem)
+    ' Invoke JPO to upload PDF and DXF to server
+    Sub UploadPDFDXFtoENOVIA(ByVal server As IEnoServer, ByVal item As IEnoSelectionItem)
 
         Dim file As IEnoFile
         Dim attribs As IEnoAttributeValues
@@ -269,7 +269,7 @@ Public Class SWAddInForCheckIn
             MsgBox(Err.Description)
         End Try
 
+        Exit Sub
     End Sub
-
 
 End Class
