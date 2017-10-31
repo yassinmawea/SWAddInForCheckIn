@@ -121,16 +121,20 @@ Public Class SWAddInForCheckIn
             Debug.Print("What is choosen ----> " + path)
             MyExt = Right(path, 6)
             If String.Compare(MyExt, "SLDPRT", True) = 0 Then
-                swPart = swApp.OpenDoc6(path, swDocumentTypes_e.swDocPART, swOpenDocOptions_e.swOpenDocOptions_ReadOnly, "", iErrors, iWarnings)
-                Debug.Print("Model opened")
-                sync = New EnoviaSWAddIn
-                sync.Synchronize()
-                'swApp.QuitDoc("")
+                If item.GetProperty(EnoSelItemProp.Enospi_CheckIn) = True Then
+                    swPart = swApp.OpenDoc6(path, swDocumentTypes_e.swDocPART, swOpenDocOptions_e.swOpenDocOptions_ReadOnly, "", iErrors, iWarnings)
+                    Debug.Print("Model opened")
+                    sync = New EnoviaSWAddIn
+                    sync.Synchronize()
+                    'swApp.QuitDoc("")
+                End If
             ElseIf String.Compare(MyExt, "SLDASM", True) = 0 Then
-                swAssembly = swApp.OpenDoc6(path, swDocumentTypes_e.swDocASSEMBLY, swOpenDocOptions_e.swOpenDocOptions_ReadOnly, "", iErrors, iWarnings)
-                sync = New EnoviaSWAddIn
-                sync.Synchronize()
-                swApp.QuitDoc("")
+                If item.GetProperty(EnoSelItemProp.Enospi_CheckIn) = True Then
+                    swAssembly = swApp.OpenDoc6(path, swDocumentTypes_e.swDocASSEMBLY, swOpenDocOptions_e.swOpenDocOptions_ReadOnly, "", iErrors, iWarnings)
+                    sync = New EnoviaSWAddIn
+                    sync.Synchronize()
+                    swApp.QuitDoc("")
+                End If
             End If
         Next
 
