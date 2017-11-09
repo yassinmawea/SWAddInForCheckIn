@@ -22,26 +22,17 @@ Partial Class Form1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Me.ProgressBar1 = New System.Windows.Forms.ProgressBar()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.SuspendLayout()
-        '
-        'ProgressBar1
-        '
-        Me.ProgressBar1.Location = New System.Drawing.Point(34, 89)
-        Me.ProgressBar1.Name = "ProgressBar1"
-        Me.ProgressBar1.Size = New System.Drawing.Size(384, 23)
-        Me.ProgressBar1.Step = 1
-        Me.ProgressBar1.TabIndex = 0
         '
         'Label1
         '
         Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(145, 30)
+        Me.Label1.Location = New System.Drawing.Point(145, 60)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(164, 17)
+        Me.Label1.Size = New System.Drawing.Size(179, 17)
         Me.Label1.TabIndex = 1
-        Me.Label1.Text = "Derive Output progress.."
+        Me.Label1.Text = "Derive Output in progress.."
         '
         'Form1
         '
@@ -49,7 +40,6 @@ Partial Class Form1
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(461, 143)
         Me.Controls.Add(Me.Label1)
-        Me.Controls.Add(Me.ProgressBar1)
         Me.MaximizeBox = False
         Me.Name = "Form1"
         Me.ShowIcon = False
@@ -57,7 +47,5 @@ Partial Class Form1
         Me.PerformLayout()
 
     End Sub
-
-    Friend WithEvents ProgressBar1 As System.Windows.Forms.ProgressBar
     Friend WithEvents Label1 As System.Windows.Forms.Label
 End Class

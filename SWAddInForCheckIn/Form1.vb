@@ -7,14 +7,7 @@
         CenterToScreen()
     End Sub
 
-    Public Sub setMaximum(ByVal max)
-        ProgressBar1.Maximum = max
-    End Sub
+    Private Sub Label1_Click(sender As Object, e As EventArgs) Handles Label1.Click
 
-    Public Sub increaseProgress()
-        currentValue = (currentValue + 1)
-        Debug.Print(currentValue)
-        ProgressBar1.Value = currentValue
     End Sub
-
 End Class
