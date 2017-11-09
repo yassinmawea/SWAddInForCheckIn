@@ -166,25 +166,32 @@ Public Class SWAddInForCheckIn
             checkinFromExplorer = True
             myProcess.StartInfo.FileName = "C:\Program Files\SolidWorks Corp\SOLIDWORKS (2)\SLDWORKS.exe"
             myProcess.Start()
+            Threading.Thread.Sleep(20000)
         End If
 
-        Do
-            Debug.Print(myProcess.MainWindowTitle.ToString())
-            Call WaitFor(1)
-        Loop Until Not myProcess.MainWindowTitle.ToString().Equals("splash")
-
-        ' Create a progress bar to show derive output progress
-
-        'progressBar.Close()
+        'Do
+        '  Call WaitFor(5)
+        '  Debug.Print(myProcess.MainWindowTitle)
+        '  Call WaitFor(1)
+        'Loop Until Not myProcess.MainWindowTitle.Equals("splash")
 
         'swApp = GetObject(, "SldWorks.Application")
-        swApp = CType(System.Runtime.InteropServices.Marshal.GetActiveObject("SldWorks.Application"), SldWorks)
+        Do
+            swApp = CType(System.Runtime.InteropServices.Marshal.GetActiveObject("SldWorks.Application"), SldWorks)
+            Call WaitFor(3)
+            Debug.Print("Checking swApp")
+        Loop While (swApp Is Nothing)
         swApp.UserControl = True
 
 
         Debug.Print("Macro starts")
         Call WaitFor(3)
-        boolstatus = swApp.RunMacro2("D:\Documents\Yassin Work\INVENPRO\Customization\SWAddInForCheckIn\Sync1.swp", "Sync11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
+
+        If checkinFromExplorer Then
+        Else
+            boolstatus = swApp.RunMacro2("D:\Documents\Yassin Work\INVENPRO\Customization\SWAddInForCheckIn\Sync1.swp", "Sync11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
+        End If
+
         Debug.Print("Macro ends")
 
         ' Creating list of parts and assembly for synchronization
