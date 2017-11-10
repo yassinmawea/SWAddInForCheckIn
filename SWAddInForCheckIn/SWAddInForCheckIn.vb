@@ -206,13 +206,13 @@ Public Class SWAddInForCheckIn
                     swModel = swApp.OpenDoc6(path, swDocumentTypes_e.swDocPART, swOpenDocOptions_e.swOpenDocOptions_Silent, "", iErrors, iWarnings)
                     Debug.Print("what model? -> " & swModel.GetPathName)
                     Debug.Print("Model opened")
-                    'swApp.QuitDoc("")
+                    swApp.QuitDoc("")
                 End If
             ElseIf String.Compare(MyExt, "SLDASM", True) = 0 Then
                 If item.GetProperty(EnoSelItemProp.Enospi_CheckIn) = True Then
                     swAssembly = swApp.OpenDoc6(path, swDocumentTypes_e.swDocASSEMBLY, swOpenDocOptions_e.swOpenDocOptions_Silent, "", iErrors, iWarnings)
                     'swModel = swApp.ActivateDoc3(filenameFull, False, swRebuildOnActivation_e.swDontRebuildActiveDoc, iErrors)
-                    'swApp.QuitDoc("")
+                    swApp.QuitDoc("")
                 End If
             End If
         Next
@@ -239,40 +239,7 @@ Public Class SWAddInForCheckIn
                     Debug.Print("swDrawing Path -> " + swModel.GetPathName())
                     'swModel = swApp.ActivateDoc3(Dir(filenameFullForerver), False, swRebuildOnActivation_e.swDontRebuildActiveDoc, iErrors)
 
-                    Debug.Print("Error Code: " + iErrors.ToString)
-
-                    Debug.Print(Dir(filenameFullForerver))
-                    boolstatusActivateSheet = swDraw.ActivateSheet(strSheetPDFName(0))
-                    'swModel = swApp.ActiveDoc
-                    swModelDocExt = swModel.Extension
-
-                    'swModelDocExt = swNewModel.Extension
-                    swExportPDFData = swApp.GetExportFileData(1)
-                    ' Names of the sheets
-                    strSheetPDFName(0) = "Sheet1"
-                    strSheetDXFName(0) = "Sheet2"
-
-                    varSheetPDFName = strSheetPDFName
-                    varSheetDXFName = strSheetDXFName
-
-                    ' Generate PDF code is here
-                    If swExportPDFData Is Nothing Then MsgBox("Nothing")
-                    boolstatus = swExportPDFData.SetSheets(swExportDataSheetsToExport_e.swExportData_ExportSpecifiedSheets, varSheetPDFName)
-                    swExportPDFData.ViewPdfAfterSaving = False
-
-                    boolstatus = swModelDocExt.SaveAs(filenamePDF, 0, 0, swExportPDFData, lErrors, lWarnings)
-                    Debug.Print("PDF Saved? --------->" & boolstatus)
-
-
-
-                    ' Generate DXF code is here
-                    swApp.SetUserPreferenceIntegerValue(swUserPreferenceIntegerValue_e.swDxfMultiSheetOption, swDxfMultisheet_e.swDxfActiveSheetOnly)
-
-                    boolstatusActivateSheet = swDraw.ActivateSheet(strSheetDXFName(0))
-                    If boolstatusActivateSheet Then
-                        boolstatusDXF = swDraw.SaveAs4(filenameDXF, swSaveAsVersion_e.swSaveAsCurrentVersion, swSaveAsOptions_e.swSaveAsOptions_Silent, lErrors, lWarnings)
-                        Debug.Print("DXF saved? ---------> " & boolstatusDXF)
-                    End If
+                    boolstatus = swApp.RunMacro2("D:\Documents\Yassin Work\INVENPRO\Customization\SWAddInForCheckIn\PDFDXFMacro_Alt.swp", "Personal11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
 
                     ' Invoke JPO to upload PDF and DXF to server
                     UploadPDFDXFtoENOVIA(server, item)
