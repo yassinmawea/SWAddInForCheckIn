@@ -189,7 +189,7 @@ Public Class SWAddInForCheckIn
 
         If checkinFromExplorer Then
         Else
-            boolstatus = swApp.RunMacro2("D:\Documents\Yassin Work\INVENPRO\Customization\SWAddInForCheckIn\Sync1.swp", "Sync11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
+            boolstatus = swApp.RunMacro2("C:\Program Files\SolidWorks Corp\SWAddInForCheckIn\Sync1.swp", "Sync11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
         End If
 
         Debug.Print("Macro ends")
@@ -239,7 +239,7 @@ Public Class SWAddInForCheckIn
                     Debug.Print("swDrawing Path -> " + swModel.GetPathName())
                     'swModel = swApp.ActivateDoc3(Dir(filenameFullForerver), False, swRebuildOnActivation_e.swDontRebuildActiveDoc, iErrors)
 
-                    boolstatus = swApp.RunMacro2("D:\Documents\Yassin Work\INVENPRO\Customization\SWAddInForCheckIn\PDFDXFMacro_Alt.swp", "Personal11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
+                    boolstatus = swApp.RunMacro2("C:\Program Files\SolidWorks Corp\SWAddInForCheckIn\PDFDXFMacro_Alt.swp", "Personal11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
 
                     ' Invoke JPO to upload PDF and DXF to server
                     UploadPDFDXFtoENOVIA(server, item)
