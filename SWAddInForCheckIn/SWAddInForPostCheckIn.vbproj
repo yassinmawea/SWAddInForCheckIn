@@ -49,6 +49,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ForKL|AnyCPU'">
     <OutputPath>bin\ForKL\</OutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ForRelease%282%29|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\ForRelease%282%29\</OutputPath>
+    <DocumentationFile>swAddInForCheckIn.xml</DocumentationFile>
+    <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="SolidWorks.Interop.sldworks">
       <HintPath>C:\Program Files\SolidWorks Corp\SOLIDWORKS (2)\api\redist\CLR2\SolidWorks.Interop.sldworks.dll</HintPath>

@@ -9,6 +9,7 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		ForKL|Any CPU = ForKL|Any CPU
+		ForRelease(2)|Any CPU = ForRelease(2)|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
@@ -16,6 +17,8 @@ Global
 		{213B5BBF-0C72-44F0-9BBF-4A973AA1394F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{213B5BBF-0C72-44F0-9BBF-4A973AA1394F}.ForKL|Any CPU.ActiveCfg = ForKL|Any CPU
 		{213B5BBF-0C72-44F0-9BBF-4A973AA1394F}.ForKL|Any CPU.Build.0 = ForKL|Any CPU
+		{213B5BBF-0C72-44F0-9BBF-4A973AA1394F}.ForRelease(2)|Any CPU.ActiveCfg = ForRelease(2)|Any CPU
+		{213B5BBF-0C72-44F0-9BBF-4A973AA1394F}.ForRelease(2)|Any CPU.Build.0 = ForRelease(2)|Any CPU
 		{213B5BBF-0C72-44F0-9BBF-4A973AA1394F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{213B5BBF-0C72-44F0-9BBF-4A973AA1394F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
