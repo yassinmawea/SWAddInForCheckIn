@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{213B5BBF-0C72-44F0-9BBF-4A973AA1394F}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>SWAddInForCheckIn</RootNamespace>
-    <AssemblyName>SWAddInForCheckIn</AssemblyName>
+    <RootNamespace>swAddInForCheckIn</RootNamespace>
+    <AssemblyName>swAddInForCheckIn</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
@@ -18,7 +18,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>SWAddInForCheckIn.xml</DocumentationFile>
+    <DocumentationFile>swAddInForCheckIn.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</NoWarn>
     <WarningsAsErrors>
     </WarningsAsErrors>
@@ -29,7 +29,7 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>SWAddInForCheckIn.xml</DocumentationFile>
+    <DocumentationFile>swAddInForCheckIn.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</NoWarn>
     <WarningsAsErrors>
     </WarningsAsErrors>
@@ -45,6 +45,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <OptionInfer>On</OptionInfer>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ForKL|AnyCPU'">
+    <OutputPath>bin\ForKL\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="SolidWorks.Interop.sldworks">
@@ -93,7 +96,7 @@
     <Compile Include="Form2.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SWAddInForCheckIn.vb" />
+    <Compile Include="swAddInForCheckIn.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
