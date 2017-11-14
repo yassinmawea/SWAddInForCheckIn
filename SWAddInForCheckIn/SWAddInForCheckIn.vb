@@ -6,7 +6,7 @@ Imports System.Runtime.InteropServices
 Imports System.Diagnostics.Process
 Imports EnoviaSW2Lib
 
-<Guid("9f23caa0-087f-4f42-b93d-bf02bcd8359d"), ClassInterface(ClassInterfaceType.None), ProgId("SWAddIn - INVENPRO")>
+<Guid("9f23caa0-087f-4f42-b93d-bf02bcd8359c"), ClassInterface(ClassInterfaceType.None), ProgId("SWAddIn - INVENPRO")>
 Public Class SWAddInForCheckIn
     Implements IEnoAddIn
 
