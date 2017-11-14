@@ -164,7 +164,7 @@ Public Class SWAddInForCheckIn
         Debug.Print("P Count --> " & p.Count)
         If p.Count = 0 Then
             checkinFromExplorer = True
-            myProcess.StartInfo.FileName = "C:\Program Files\SolidWorks Corp\SOLIDWORKS (2)\SLDWORKS.exe"
+            myProcess.StartInfo.FileName = "C:\Program Files\SolidWorks Corp\SOLIDWORKS\SLDWORKS.exe"
             myProcess.Start()
             Threading.Thread.Sleep(20000)
         End If
