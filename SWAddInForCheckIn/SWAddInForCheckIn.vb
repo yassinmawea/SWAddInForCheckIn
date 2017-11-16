@@ -96,6 +96,7 @@ Public Class SWAddInForCheckIn
         Dim server As IEnoServer
         Dim swApp As SldWorks
         Dim swModel As ModelDoc2
+        Dim swModelENO As String
         Dim boolstatusSWStarts As Boolean
         Dim swModelDocExt As ModelDocExtension
         Dim swExportPDFData As ExportPdfData
@@ -198,6 +199,8 @@ Public Class SWAddInForCheckIn
         For Each item In sel
             Dim path As String
             path = item.GetProperty(EnoSelItemProp.Enospi_Path)
+            swModelENO = item.GetProperty(EnoSelItemProp.Enospi_)
+            Debug.Print("swModelENO type? --> " & swModelENO)
             Debug.Print("What is choosen ----> " + path)
             filenameFull = Dir(path)
             MyExt = Right(path, 6)
@@ -221,6 +224,8 @@ Public Class SWAddInForCheckIn
         ' and subsequently create the path to temporarily store PDF and DXF
         For Each item In sel
             filenameFullForerver = item.GetProperty(EnoSelItemProp.Enospi_Path)
+            swModelENO = item.GetProperty(EnoSelItemProp.Enospi_EnoviaObjectType)
+            Debug.Print("swModelENO type? --> " & swModelENO)
             Debug.Print("Processing -->" + filenameFullForerver)
             MyExt = Right(filenameFullForerver, 6)                             ' will contain "SLDDRW"
             MyPath = filenameFullForerver
