@@ -164,7 +164,7 @@ Public Class SWAddInForCheckIn
         Debug.Print("P Count --> " & p.Count)
         If p.Count = 0 Then
             checkinFromExplorer = True
-            myProcess.StartInfo.FileName = "D:\Program Files\SOLIDWORKS Corp 2017\SOLIDWORKS\SLDWORKS.exe"
+            myProcess.StartInfo.FileName = "C:\Program Files\SOLIDWORKS Corp 2017\SOLIDWORKS\SLDWORKS.exe"
             myProcess.Start()
             Threading.Thread.Sleep(20000)
         End If
@@ -189,7 +189,7 @@ Public Class SWAddInForCheckIn
 
         If checkinFromExplorer Then
         Else
-            boolstatus = swApp.RunMacro2("D:\Program Files\SolidWorks Corp 2017\swAddInForCheckIn\Sync1.swp", "Sync11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
+            boolstatus = swApp.RunMacro2("C:\Program Files\SolidWorks Corp 2017\swAddInForCheckIn\Sync1.swp", "Sync11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
         End If
 
         Debug.Print("Macro ends")
@@ -239,7 +239,7 @@ Public Class SWAddInForCheckIn
                     Debug.Print("swDrawing Path -> " + swModel.GetPathName())
                     'swModel = swApp.ActivateDoc3(Dir(filenameFullForerver), False, swRebuildOnActivation_e.swDontRebuildActiveDoc, iErrors)
 
-                    boolstatus = swApp.RunMacro2("D:\Program Files\SolidWorks Corp 2017\swAddInForCheckIn\PDFDXFMacro_Alt.swp", "Personal11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
+                    boolstatus = swApp.RunMacro2("C:\Program Files\SolidWorks Corp 2017\swAddInForCheckIn\PDFDXFMacro_Alt.swp", "Personal11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
 
                     ' Invoke JPO to upload PDF and DXF to server
                     UploadPDFDXFtoENOVIA(server, item)
