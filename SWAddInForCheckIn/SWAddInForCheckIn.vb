@@ -96,6 +96,7 @@ Public Class SWAddInForCheckIn
         Dim server As IEnoServer
         Dim swApp As SldWorks
         Dim swModel As ModelDoc2
+        Dim swModelENO As String
         Dim boolstatusSWStarts As Boolean
         Dim swModelDocExt As ModelDocExtension
         Dim swExportPDFData As ExportPdfData
@@ -121,6 +122,7 @@ Public Class SWAddInForCheckIn
         Dim MyExt As String
         Dim sel As IEnoSelection
         Dim item As IEnoSelectionItem
+        Dim file As IEnoFile
         Dim partsToClose As New List(Of String)
         Dim partToClose As String
         Dim partToClosePRT As String
@@ -140,13 +142,15 @@ Public Class SWAddInForCheckIn
         Dim cusPropMgr As CustomPropertyManager
         Dim config As Configuration
         Dim lRetVal As Integer
-        Dim file As IEnoFile
+        Dim enoFile As IEnoFile
+        Dim enoFolder As IEnoFolder
         Dim attribs As IEnoAttributeValues
         Dim partNo(1) As String
         Dim vConfigNameArr As Array
         Dim confname As String
         Dim completeMessage As Form2
         Dim syncs As EnoviaSWAddIn
+        Dim type As String
 
         ' Retrieving server information
         Debug.Print("Server Name from poCmd --> " + poCmd.Server.Name)
@@ -198,17 +202,22 @@ Public Class SWAddInForCheckIn
         For Each item In sel
             Dim path As String
             path = item.GetProperty(EnoSelItemProp.Enospi_Path)
+            enoFolder = Nothing
+            enoFile = server.GetFileFromPath(item.Path, enoFolder)
+            type = enoFile.ObjectTypeName
+            Debug.Print("ObjectTypeName --> " & enoFile.ObjectTypeName)
             Debug.Print("What is choosen ----> " + path)
             filenameFull = Dir(path)
             MyExt = Right(path, 6)
-            If String.Compare(MyExt, "SLDPRT", True) = 0 Then
+            Dim comp As StringComparison = StringComparison.OrdinalIgnoreCase
+            If type.Contains("Component") Then
                 If item.GetProperty(EnoSelItemProp.Enospi_CheckIn) = True Then
                     swModel = swApp.OpenDoc6(path, swDocumentTypes_e.swDocPART, swOpenDocOptions_e.swOpenDocOptions_Silent, "", iErrors, iWarnings)
                     Debug.Print("what model? -> " & swModel.GetPathName)
                     Debug.Print("Model opened")
                     swApp.QuitDoc("")
                 End If
-            ElseIf String.Compare(MyExt, "SLDASM", True) = 0 Then
+            ElseIf type.Contains("Assembly") Then
                 If item.GetProperty(EnoSelItemProp.Enospi_CheckIn) = True Then
                     swAssembly = swApp.OpenDoc6(path, swDocumentTypes_e.swDocASSEMBLY, swOpenDocOptions_e.swOpenDocOptions_Silent, "", iErrors, iWarnings)
                     'swModel = swApp.ActivateDoc3(filenameFull, False, swRebuildOnActivation_e.swDontRebuildActiveDoc, iErrors)
@@ -221,13 +230,17 @@ Public Class SWAddInForCheckIn
         ' and subsequently create the path to temporarily store PDF and DXF
         For Each item In sel
             filenameFullForerver = item.GetProperty(EnoSelItemProp.Enospi_Path)
+            enoFolder = Nothing
+            enoFile = server.GetFileFromPath(item.Path, enoFolder)
+            Debug.Print("ObjectTypeName --> " & enoFile.ObjectTypeName)
+            type = enoFile.ObjectTypeName
             Debug.Print("Processing -->" + filenameFullForerver)
             MyExt = Right(filenameFullForerver, 6)                             ' will contain "SLDDRW"
             MyPath = filenameFullForerver
             filenameFull = Dir(filenameFullForerver)                           ' will contain "SolidPart.SLDDRW"
             MyPath = Left(MyPath, InStr(MyPath, filenameFull) - 1)     ' will contain "C:\Folder1\Folder2\"
             filenameFull = Left(filenameFull, InStr(filenameFull, ".") - 1)   ' will contain "SolidPart"
-            If String.Compare(MyExt, "SLDDRW", True) = 0 Then
+            If type.Contains("Drawing") Then
                 If item.GetProperty(EnoSelItemProp.Enospi_CheckIn) = True Then
 
                     filenamePDF = "\\3dexperience17x\derivedoutput\" & filenameFull & ".pdf"          ' will contain "Default(SolidPart).pdf"
