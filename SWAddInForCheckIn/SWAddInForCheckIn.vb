@@ -233,7 +233,7 @@ Public Class SWAddInForCheckIn
             enoFolder = Nothing
             enoFile = server.GetFileFromPath(item.Path, enoFolder)
             Debug.Print("ObjectTypeName --> " & enoFile.ObjectTypeName)
-
+            type = enoFile.ObjectTypeName
             Debug.Print("Processing -->" + filenameFullForerver)
             MyExt = Right(filenameFullForerver, 6)                             ' will contain "SLDDRW"
             MyPath = filenameFullForerver
