@@ -140,13 +140,15 @@ Public Class SWAddInForCheckIn
         Dim cusPropMgr As CustomPropertyManager
         Dim config As Configuration
         Dim lRetVal As Integer
-        Dim file As IEnoFile
+        Dim enoFile As IEnoFile
+        Dim enoFolder As IEnoFolder
         Dim attribs As IEnoAttributeValues
         Dim partNo(1) As String
         Dim vConfigNameArr As Array
         Dim confname As String
         Dim completeMessage As Form2
         Dim syncs As EnoviaSWAddIn
+        Dim type As String
 
         ' Retrieving server information
         Debug.Print("Server Name from poCmd --> " + poCmd.Server.Name)
@@ -164,7 +166,7 @@ Public Class SWAddInForCheckIn
         Debug.Print("P Count --> " & p.Count)
         If p.Count = 0 Then
             checkinFromExplorer = True
-            myProcess.StartInfo.FileName = "D:\Program Files\SOLIDWORKS Corp\SOLIDWORKS (2)\SLDWORKS.exe"
+            myProcess.StartInfo.FileName = "C:\Program Files\SolidWorks Corp\SOLIDWORKS (2)\SLDWORKS.exe"
             myProcess.Start()
             Threading.Thread.Sleep(20000)
         End If
@@ -189,7 +191,7 @@ Public Class SWAddInForCheckIn
 
         If checkinFromExplorer Then
         Else
-            boolstatus = swApp.RunMacro2("D:\Program Files\SolidWorks Corp\swAddInForCheckIn\Sync1.swp", "Sync11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
+            boolstatus = swApp.RunMacro2("C:\Program Files\SolidWorks Corp\SWAddInForCheckIn\Sync1.swp", "Sync11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
         End If
 
         Debug.Print("Macro ends")
@@ -198,17 +200,22 @@ Public Class SWAddInForCheckIn
         For Each item In sel
             Dim path As String
             path = item.GetProperty(EnoSelItemProp.Enospi_Path)
+            enoFolder = Nothing
+            enoFile = server.GetFileFromPath(item.Path, enoFolder)
+            type = enoFile.ObjectTypeName
+            Debug.Print("ObjectTypeName --> " & enoFile.ObjectTypeName)
             Debug.Print("What is choosen ----> " + path)
             filenameFull = Dir(path)
             MyExt = Right(path, 6)
-            If String.Compare(MyExt, "SLDPRT", True) = 0 Then
+            Dim comp As StringComparison = StringComparison.OrdinalIgnoreCase
+            If type.Contains("Component") Then
                 If item.GetProperty(EnoSelItemProp.Enospi_CheckIn) = True Then
                     swModel = swApp.OpenDoc6(path, swDocumentTypes_e.swDocPART, swOpenDocOptions_e.swOpenDocOptions_Silent, "", iErrors, iWarnings)
                     Debug.Print("what model? -> " & swModel.GetPathName)
                     Debug.Print("Model opened")
                     swApp.QuitDoc("")
                 End If
-            ElseIf String.Compare(MyExt, "SLDASM", True) = 0 Then
+            ElseIf type.Contains("Assembly") Then
                 If item.GetProperty(EnoSelItemProp.Enospi_CheckIn) = True Then
                     swAssembly = swApp.OpenDoc6(path, swDocumentTypes_e.swDocASSEMBLY, swOpenDocOptions_e.swOpenDocOptions_Silent, "", iErrors, iWarnings)
                     'swModel = swApp.ActivateDoc3(filenameFull, False, swRebuildOnActivation_e.swDontRebuildActiveDoc, iErrors)
@@ -221,13 +228,17 @@ Public Class SWAddInForCheckIn
         ' and subsequently create the path to temporarily store PDF and DXF
         For Each item In sel
             filenameFullForerver = item.GetProperty(EnoSelItemProp.Enospi_Path)
+            enoFolder = Nothing
+            enoFile = server.GetFileFromPath(item.Path, enoFolder)
+            Debug.Print("ObjectTypeName --> " & enoFile.ObjectTypeName)
+            type = enoFile.ObjectTypeName
             Debug.Print("Processing -->" + filenameFullForerver)
             MyExt = Right(filenameFullForerver, 6)                             ' will contain "SLDDRW"
             MyPath = filenameFullForerver
             filenameFull = Dir(filenameFullForerver)                           ' will contain "SolidPart.SLDDRW"
             MyPath = Left(MyPath, InStr(MyPath, filenameFull) - 1)     ' will contain "C:\Folder1\Folder2\"
             filenameFull = Left(filenameFull, InStr(filenameFull, ".") - 1)   ' will contain "SolidPart"
-            If String.Compare(MyExt, "SLDDRW", True) = 0 Then
+            If type.Contains("Drawing") Then
                 If item.GetProperty(EnoSelItemProp.Enospi_CheckIn) = True Then
 
                     filenamePDF = "\\3dexperience17x\derivedoutput\" & filenameFull & ".pdf"          ' will contain "Default(SolidPart).pdf"
@@ -239,7 +250,7 @@ Public Class SWAddInForCheckIn
                     Debug.Print("swDrawing Path -> " + swModel.GetPathName())
                     'swModel = swApp.ActivateDoc3(Dir(filenameFullForerver), False, swRebuildOnActivation_e.swDontRebuildActiveDoc, iErrors)
 
-                    boolstatus = swApp.RunMacro2("D:\Program Files\SolidWorks Corp\swAddInForCheckIn\PDFDXFMacro_Alt.swp", "Personal11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
+                    boolstatus = swApp.RunMacro2("C:\Program Files\SolidWorks Corp\SWAddInForCheckIn\PDFDXFMacro_Alt.swp", "Personal11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
 
                     ' Invoke JPO to upload PDF and DXF to server
                     UploadPDFDXFtoENOVIA(server, item)
