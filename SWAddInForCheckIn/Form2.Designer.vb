@@ -31,9 +31,9 @@ Partial Class Form2
         Me.Label1.AutoSize = True
         Me.Label1.Location = New System.Drawing.Point(80, 46)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(126, 17)
+        Me.Label1.Size = New System.Drawing.Size(134, 17)
         Me.Label1.TabIndex = 0
-        Me.Label1.Text = "Check In complete!"
+        Me.Label1.Text = "Check In completed!"
         '
         'Button1
         '

@@ -28,11 +28,11 @@ Partial Class Form1
         'Label1
         '
         Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(145, 60)
+        Me.Label1.Location = New System.Drawing.Point(133, 61)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(179, 17)
+        Me.Label1.Size = New System.Drawing.Size(187, 17)
         Me.Label1.TabIndex = 1
-        Me.Label1.Text = "Derive Output in progress.."
+        Me.Label1.Text = "Derived Output in progress.."
         '
         'Form1
         '
