@@ -68,14 +68,12 @@ Public Class SWAddInForCheckIn
     End Sub
 
     Async Sub runMacro(ByVal poCmd As IEnoCmd)
-        Dim progressBar As Form1
+
         Dim completeMessage As Form2
 
-        progressBar = New Form1
-        progressBar.TopMost = True
-        progressBar.Show()
+
         Await Task.Run(Sub() MainProgram(poCmd))
-        progressBar.Close()
+
         completeMessage = New Form2
         completeMessage.Show()
 
@@ -123,6 +121,7 @@ Public Class SWAddInForCheckIn
         Dim sel As IEnoSelection
         Dim item As IEnoSelectionItem
         Dim file As IEnoFile
+        Dim checkCAD As List(Of String) = New List(Of String)
         Dim partsToClose As New List(Of String)
         Dim partToClose As String
         Dim partToClosePRT As String
@@ -151,6 +150,9 @@ Public Class SWAddInForCheckIn
         Dim completeMessage As Form2
         Dim syncs As EnoviaSWAddIn
         Dim type As String
+        Dim progressBar As Form1
+
+
 
         ' Retrieving server information
         Debug.Print("Server Name from poCmd --> " + poCmd.Server.Name)
@@ -159,8 +161,31 @@ Public Class SWAddInForCheckIn
 
         ' Test to see how many list were in Selection
         sel = poCmd.Selection
-        count = sel.Count
+        count = sel.Count + 2
         Debug.Print(count)
+
+
+        ' Check if list only contains document only. If it is, exit sub.
+        For Each item In sel
+            Dim path As String
+            path = item.GetProperty(EnoSelItemProp.Enospi_Path)
+            enoFolder = Nothing
+            enoFile = server.GetFileFromPath(item.Path, enoFolder)
+            type = enoFile.ObjectTypeName
+            Debug.Print("ObjectTypeName --> " & enoFile.ObjectTypeName)
+            checkCAD.Add(type)
+        Next
+
+        If checkCAD.Contains("SW Component Family") Or checkCAD.Contains("SW Assembly Family") Or checkCAD.Contains("SW Drawing") Then
+
+        Else
+            Exit Sub
+        End If
+
+        progressBar = New Form1
+        progressBar.TopMost = True
+        progressBar.DrawingCount(count)
+        progressBar.Show()
 
         ' Open SW if it's not opened yet
         p = Process.GetProcessesByName("SLDWORKS")
@@ -185,7 +210,7 @@ Public Class SWAddInForCheckIn
             Call WaitFor(3)
             Debug.Print("Checking swApp")
         Loop While (swApp Is Nothing)
-        swApp.UserControl = True
+        swApp.UserControl = False
 
 
         Debug.Print("Macro starts")
@@ -197,7 +222,7 @@ Public Class SWAddInForCheckIn
         End If
 
         Debug.Print("Macro ends")
-
+        progressBar.increaseValue()
         ' Creating list of parts and assembly for synchronization
         For Each item In sel
             Dim path As String
@@ -225,7 +250,7 @@ Public Class SWAddInForCheckIn
                 End If
             End If
         Next
-
+        progressBar.increaseValue()
         ' Iterating each item in selection to retrieve the path of drawing
         ' and subsequently create the path to temporarily store PDF and DXF
         For Each item In sel
@@ -260,6 +285,7 @@ Public Class SWAddInForCheckIn
                     ' Increase progress as method is done
                 End If
             End If
+            progressBar.increaseValue()
         Next
         'swApp.UserControl = True
 
@@ -267,6 +293,9 @@ Public Class SWAddInForCheckIn
         If checkinFromExplorer = True Then
             myProcess.Kill()
         End If
+
+        progressBar.Close()
+        swApp.UserControl = True
 
     End Sub
 
