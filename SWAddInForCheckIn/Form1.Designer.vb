@@ -29,7 +29,7 @@ Partial Class Form1
         'Label1
         '
         Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(134, 42)
+        Me.Label1.Location = New System.Drawing.Point(171, 70)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(187, 17)
         Me.Label1.TabIndex = 1
@@ -37,7 +37,7 @@ Partial Class Form1
         '
         'ProgressBar1
         '
-        Me.ProgressBar1.Location = New System.Drawing.Point(12, 94)
+        Me.ProgressBar1.Location = New System.Drawing.Point(50, 139)
         Me.ProgressBar1.Maximum = 10
         Me.ProgressBar1.Name = "ProgressBar1"
         Me.ProgressBar1.Size = New System.Drawing.Size(437, 23)
@@ -49,7 +49,7 @@ Partial Class Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(461, 143)
+        Me.ClientSize = New System.Drawing.Size(548, 212)
         Me.Controls.Add(Me.ProgressBar1)
         Me.Controls.Add(Me.Label1)
         Me.MaximizeBox = False
