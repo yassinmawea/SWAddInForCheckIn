@@ -186,6 +186,7 @@ Public Class SWAddInForCheckIn
         progressBar.TopMost = True
         progressBar.DrawingCount(count)
         progressBar.Show()
+        progressBar.Refresh()
 
         ' Open SW if it's not opened yet
         p = Process.GetProcessesByName("SLDWORKS")
