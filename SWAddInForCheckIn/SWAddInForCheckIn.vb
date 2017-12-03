@@ -186,6 +186,7 @@ Public Class SWAddInForCheckIn
         progressBar.TopMost = True
         progressBar.DrawingCount(count)
         progressBar.Show()
+        progressBar.Refresh()
 
         ' Open SW if it's not opened yet
         p = Process.GetProcessesByName("SLDWORKS")
@@ -223,6 +224,8 @@ Public Class SWAddInForCheckIn
 
         Debug.Print("Macro ends")
         progressBar.increaseValue()
+        progressBar.Refresh()
+
         ' Creating list of parts and assembly for synchronization
         For Each item In sel
             Dim path As String
@@ -251,6 +254,8 @@ Public Class SWAddInForCheckIn
             End If
         Next
         progressBar.increaseValue()
+        progressBar.Refresh()
+
         ' Iterating each item in selection to retrieve the path of drawing
         ' and subsequently create the path to temporarily store PDF and DXF
         For Each item In sel
@@ -286,6 +291,8 @@ Public Class SWAddInForCheckIn
                 End If
             End If
             progressBar.increaseValue()
+            progressBar.Refresh()
+
         Next
         'swApp.UserControl = True
 
