@@ -76,6 +76,8 @@ Public Class SWAddInForCheckIn
 
         completeMessage = New Form2
         completeMessage.Show()
+        completeMessage.Refresh()
+ 
 
     End Sub
 
@@ -223,7 +225,7 @@ Public Class SWAddInForCheckIn
         End If
 
         Debug.Print("Macro ends")
-        progressBar.increaseValue()
+        progressBar.IncreaseValue()
         progressBar.Refresh()
 
         ' Creating list of parts and assembly for synchronization
@@ -253,7 +255,7 @@ Public Class SWAddInForCheckIn
                 End If
             End If
         Next
-        progressBar.increaseValue()
+        progressBar.IncreaseValue()
         progressBar.Refresh()
 
         ' Iterating each item in selection to retrieve the path of drawing
@@ -290,7 +292,7 @@ Public Class SWAddInForCheckIn
                     ' Increase progress as method is done
                 End If
             End If
-            progressBar.increaseValue()
+            progressBar.IncreaseValue()
             progressBar.Refresh()
 
         Next
