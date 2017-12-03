@@ -77,7 +77,7 @@ Public Class SWAddInForCheckIn
         completeMessage = New Form2
         completeMessage.Show()
         completeMessage.Refresh()
- 
+
 
     End Sub
 
