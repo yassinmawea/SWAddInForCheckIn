@@ -5,11 +5,13 @@ Imports SolidWorks.Interop.swconst
 Imports System.Runtime.InteropServices
 Imports System.Diagnostics.Process
 Imports EnoviaSW2Lib
+Imports System.Threading
 
 <Guid("9f23caa0-087f-4f42-b93d-bf02bcd8359c"), ClassInterface(ClassInterfaceType.None), ProgId("SWAddIn - INVENPRO")>
 Public Class SWAddInForCheckIn
     Implements IEnoAddIn
 
+    Dim cts As CancellationTokenSource
 
     Public Sub GetAddInInfo(ByRef poInfo As EnoAddInInfo) Implements IEnoAddIn.GetAddInInfo
         poInfo.mbsAddInName = "SWAddIn - INVENPRO"
@@ -69,16 +71,28 @@ Public Class SWAddInForCheckIn
 
     Async Sub runMacro(ByVal poCmd As IEnoCmd)
 
-        Dim completeMessage As Form2
+        cts = New CancellationTokenSource()
 
-
+        Await Task.Run(Sub() ProgressMessage(cts.Token))
         Await Task.Run(Sub() MainProgram(poCmd))
+        Await Task.Run(Sub() CompleteMessage())
 
+    End Sub
+
+    Sub ProgressMessage(ct As CancellationToken)
+        Dim progressBar As Form1
+
+        progressBar = New Form1
+        progressBar.TopMost = True
+        'progressBar.DrawingCount(count)
+        progressBar.Open()
+    End Sub
+
+    Sub CompleteMessage()
+        Dim completeMessage As Form2
         completeMessage = New Form2
         completeMessage.Show()
         completeMessage.Refresh()
- 
-
     End Sub
 
     'Sub WaitFor(NumOfSeconds As Long)
@@ -152,7 +166,7 @@ Public Class SWAddInForCheckIn
         Dim completeMessage As Form2
         Dim syncs As EnoviaSWAddIn
         Dim type As String
-        Dim progressBar As Form1
+        'Dim progressBar As Form1
 
 
         ' Retrieving server information
@@ -184,10 +198,10 @@ Public Class SWAddInForCheckIn
         End If
 
 
-        progressBar = New Form1
-        progressBar.TopMost = True
-        progressBar.DrawingCount(count)
-        progressBar.Open()
+        'progressBar = New Form1
+        'progressBar.TopMost = True
+        'progressBar.DrawingCount(count)
+        'progressBar.Open()
 
         ' Open SW if it's not opened yet
         p = Process.GetProcessesByName("SLDWORKS")
@@ -302,8 +316,11 @@ Public Class SWAddInForCheckIn
             myProcess.Kill()
         End If
 
-        progressBar.CloseForm()
+        'progressBar.CloseForm()
         swApp.UserControl = True
+
+        'stop progressbar
+        cts.Cancel()
 
     End Sub
 
