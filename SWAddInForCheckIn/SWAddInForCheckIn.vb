@@ -95,15 +95,15 @@ Public Class SWAddInForCheckIn
         completeMessage.Refresh()
     End Sub
 
-    Sub WaitFor(NumOfSeconds As Long)
-        Dim SngSec As Long
-        SngSec = Timer + NumOfSeconds
+    'Sub WaitFor(NumOfSeconds As Long)
+    'Dim SngSec As Long
+    'SngSec = Timer + NumOfSeconds
 
-        Do While Timer < SngSec
-            Threading.Thread.Sleep(500)
-        Loop
+    'Do While Timer < SngSec
+    'Threading.Thread.Sleep(500)
+    'Loop
 
-    End Sub
+    'End Sub
 
     Sub MainProgram(ByVal poCmd As IEnoCmd)
         On Error Resume Next
@@ -223,14 +223,14 @@ Public Class SWAddInForCheckIn
         'swApp = GetObject(, "SldWorks.Application")
         Do
             swApp = CType(System.Runtime.InteropServices.Marshal.GetActiveObject("SldWorks.Application"), SldWorks)
-            Call WaitFor(3)
+            'Call WaitFor(3)
             Debug.Print("Checking swApp")
         Loop While (swApp Is Nothing)
         swApp.UserControl = False
 
 
         Debug.Print("Macro starts")
-        Call WaitFor(3)
+        'Call WaitFor(3)
 
         If checkinFromExplorer Then
         Else
