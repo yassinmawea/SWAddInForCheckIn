@@ -71,15 +71,24 @@ Public Class SWAddInForCheckIn
 
     Async Sub runMacro(ByVal poCmd As IEnoCmd)
 
+        Dim t1 As Thread
+        Dim t2 As Thread
         cts = New CancellationTokenSource()
 
-        Await Task.Run(Sub() ProgressMessage(cts.Token))
+        t1 = New Thread(AddressOf ProgressMessage)
+        t1.Start()
+
         Await Task.Run(Sub() MainProgram(poCmd))
-        Await Task.Run(Sub() CompleteMessage())
+
+        t1.Abort()
+
+        t2 = New Thread(AddressOf CompleteMessage)
+        t2.Start()
+
 
     End Sub
 
-    Sub ProgressMessage(ct As CancellationToken)
+    Sub ProgressMessage()
         Dim progressBar As Form1
 
         progressBar = New Form1
