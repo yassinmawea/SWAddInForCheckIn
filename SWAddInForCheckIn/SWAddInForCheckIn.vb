@@ -155,7 +155,6 @@ Public Class SWAddInForCheckIn
         Dim progressBar As Form1
 
 
-
         ' Retrieving server information
         Debug.Print("Server Name from poCmd --> " + poCmd.Server.Name)
         server = poCmd.Server
@@ -184,11 +183,11 @@ Public Class SWAddInForCheckIn
             Exit Sub
         End If
 
+
         progressBar = New Form1
         progressBar.TopMost = True
         progressBar.DrawingCount(count)
-        progressBar.Show()
-        progressBar.Refresh()
+        progressBar.Open()
 
         ' Open SW if it's not opened yet
         p = Process.GetProcessesByName("SLDWORKS")
@@ -198,7 +197,7 @@ Public Class SWAddInForCheckIn
             checkinFromExplorer = True
             myProcess.StartInfo.FileName = "C:\Program Files\SOLIDWORKS Corp 2017\SOLIDWORKS\SLDWORKS.exe"
             myProcess.Start()
-            Threading.Thread.Sleep(20000)
+            Threading.Thread.Sleep(10000)
         End If
 
         'Do
@@ -225,8 +224,8 @@ Public Class SWAddInForCheckIn
         End If
 
         Debug.Print("Macro ends")
-        progressBar.IncreaseValue()
-        progressBar.Refresh()
+        'progressBar.IncreaseValue()
+        'progressBar.Refresh()
 
         ' Creating list of parts and assembly for synchronization
         For Each item In sel
@@ -255,8 +254,8 @@ Public Class SWAddInForCheckIn
                 End If
             End If
         Next
-        progressBar.IncreaseValue()
-        progressBar.Refresh()
+        'progressBar.IncreaseValue()
+        'progressBar.Refresh()
 
         ' Iterating each item in selection to retrieve the path of drawing
         ' and subsequently create the path to temporarily store PDF and DXF
@@ -292,8 +291,8 @@ Public Class SWAddInForCheckIn
                     ' Increase progress as method is done
                 End If
             End If
-            progressBar.IncreaseValue()
-            progressBar.Refresh()
+            'progressBar.IncreaseValue()
+            'progressBar.Refresh()
 
         Next
         'swApp.UserControl = True
@@ -303,7 +302,7 @@ Public Class SWAddInForCheckIn
             myProcess.Kill()
         End If
 
-        progressBar.Close()
+        progressBar.CloseForm()
         swApp.UserControl = True
 
     End Sub
