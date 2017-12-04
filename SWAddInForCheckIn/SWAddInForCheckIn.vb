@@ -73,7 +73,7 @@ Public Class SWAddInForCheckIn
 
         cts = New CancellationTokenSource()
 
-        Await Task.Run(Sub() ProgressMessage(cts))
+        Await Task.Run(Sub() ProgressMessage(cts.Token))
         Await Task.Run(Sub() MainProgram(poCmd))
         Await Task.Run(Sub() CompleteMessage())
 
