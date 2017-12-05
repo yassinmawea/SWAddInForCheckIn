@@ -23,7 +23,6 @@ Partial Class Form1
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.Label1 = New System.Windows.Forms.Label()
-        Me.BackgroundWorker1 = New System.ComponentModel.BackgroundWorker()
         Me.ProgressBar1 = New System.Windows.Forms.ProgressBar()
         Me.SuspendLayout()
         '
@@ -35,10 +34,6 @@ Partial Class Form1
         Me.Label1.Size = New System.Drawing.Size(187, 17)
         Me.Label1.TabIndex = 1
         Me.Label1.Text = "Derived Output in progress.."
-        '
-        'BackgroundWorker1
-        '
-        Me.BackgroundWorker1.WorkerReportsProgress = True
         '
         'ProgressBar1
         '
@@ -62,6 +57,5 @@ Partial Class Form1
 
     End Sub
     Friend WithEvents Label1 As System.Windows.Forms.Label
-    Friend WithEvents BackgroundWorker1 As ComponentModel.BackgroundWorker
     Friend WithEvents ProgressBar1 As System.Windows.Forms.ProgressBar
 End Class
