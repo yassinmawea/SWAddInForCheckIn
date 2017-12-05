@@ -6,6 +6,7 @@ Imports System.Runtime.InteropServices
 Imports System.Diagnostics.Process
 Imports EnoviaSW2Lib
 Imports System.Threading
+Imports System.Windows.Forms
 
 <Guid("9f23caa0-087f-4f42-b93d-bf02bcd8359c"), ClassInterface(ClassInterfaceType.None), ProgId("SWAddIn - INVENPRO")>
 Public Class SWAddInForCheckIn
@@ -13,6 +14,7 @@ Public Class SWAddInForCheckIn
 
     'Dim cts As CancellationTokenSource
     Dim progressBar As Form1
+    Dim completeForm As Form2
 
 
     Public Sub GetAddInInfo(ByRef poInfo As EnoAddInInfo) Implements IEnoAddIn.GetAddInInfo
@@ -76,32 +78,48 @@ Public Class SWAddInForCheckIn
         Dim t1 As Thread
         Dim t2 As Thread
         'cts = New CancellationTokenSource()
+        Try
 
-        t1 = New Thread(AddressOf ProgressMessage)
-        t1.Start()
+            t1 = New Thread(AddressOf ProgressMessage)
+            t1.SetApartmentState(ApartmentState.STA)
+            t1.Start()
 
-        Await Task.Run(Sub() MainProgram(poCmd))
+            Await Task.Run(Sub() MainProgram(poCmd))
+            t1.Abort()
+            t1 = Nothing
+            Debug.Print("After Abort T1")
+            t2 = New Thread(AddressOf CompleteMessage)
+            t2.SetApartmentState(ApartmentState.STA)
+            Debug.Print("Before start T2")
+            t2.Start()
+            Debug.Print("After start T2")
 
+        Catch ex As Exception
 
-        t2 = New Thread(AddressOf CompleteMessage)
-        t2.Start()
-
+        End Try
 
     End Sub
 
     Async Sub ProgressMessage()
 
         progressBar = New Form1
-        progressBar.TopMost = True
+        Application.Run(progressBar)
+        Thread.Sleep(1000)
+
+        'progressBar.TopMost = True
         'progressBar.DrawingCount(count)
-        progressBar.Open()
+        'progressBar.Open()
     End Sub
 
-    Sub CompleteMessage()
-        Dim completeMessage As Form2
-        completeMessage = New Form2
-        completeMessage.Show()
-        completeMessage.Refresh()
+    Async Sub CompleteMessage()
+        Debug.Print("in Complete Message Thread")
+
+        completeForm = New Form2
+        Application.Run(completeForm)
+        Thread.Sleep(1000)
+        'completeForm.TopMost = True
+        'completeForm.Open()
+
     End Sub
 
     'Sub WaitFor(NumOfSeconds As Long)
@@ -329,7 +347,7 @@ Public Class SWAddInForCheckIn
         swApp.UserControl = True
 
         'stop progressbar
-        progressBar.Close()
+        'progressBar.Close()
 
     End Sub
 
