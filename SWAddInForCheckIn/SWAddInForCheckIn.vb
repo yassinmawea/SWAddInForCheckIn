@@ -11,7 +11,9 @@ Imports System.Threading
 Public Class SWAddInForCheckIn
     Implements IEnoAddIn
 
-    Dim cts As CancellationTokenSource
+    'Dim cts As CancellationTokenSource
+    Dim progressBar As Form1
+
 
     Public Sub GetAddInInfo(ByRef poInfo As EnoAddInInfo) Implements IEnoAddIn.GetAddInInfo
         poInfo.mbsAddInName = "SWAddIn - INVENPRO"
@@ -73,14 +75,13 @@ Public Class SWAddInForCheckIn
 
         Dim t1 As Thread
         Dim t2 As Thread
-        cts = New CancellationTokenSource()
+        'cts = New CancellationTokenSource()
 
         t1 = New Thread(AddressOf ProgressMessage)
         t1.Start()
 
         Await Task.Run(Sub() MainProgram(poCmd))
 
-        t1.Abort()
 
         t2 = New Thread(AddressOf CompleteMessage)
         t2.Start()
@@ -88,8 +89,7 @@ Public Class SWAddInForCheckIn
 
     End Sub
 
-    Sub ProgressMessage()
-        Dim progressBar As Form1
+    Async Sub ProgressMessage()
 
         progressBar = New Form1
         progressBar.TopMost = True
@@ -329,7 +329,7 @@ Public Class SWAddInForCheckIn
         swApp.UserControl = True
 
         'stop progressbar
-        cts.Cancel()
+        progressBar.Close()
 
     End Sub
 

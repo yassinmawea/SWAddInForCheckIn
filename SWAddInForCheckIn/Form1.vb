@@ -13,17 +13,17 @@
         Refresh()
 
         Do
-            System.Threading.Thread.Sleep(1000)
+            System.Threading.Thread.Sleep(100)
             currentValue = ProgressBar1.Value
             currentValue = currentValue + 1
 
             ProgressBar1.Value = currentValue
 
-            If currentValue = 10 Then
+            If currentValue = 100 Then
                 currentValue = 1
             End If
 
-        Loop While ProgressBar1.Value <= 10
+        Loop Until currentValue = 111
 
 
 
