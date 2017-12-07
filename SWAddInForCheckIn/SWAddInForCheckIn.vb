@@ -135,7 +135,7 @@ Public Class SWAddInForCheckIn
     Sub MainProgram(ByVal poCmd As IEnoCmd)
         On Error Resume Next
         Dim server As IEnoServer
-        Dim swApp As SldWorks
+        Dim swApp As Object
         Dim swModel As ModelDoc2
         Dim swModelENO As String
         Dim boolstatusSWStarts As Boolean
@@ -249,7 +249,7 @@ Public Class SWAddInForCheckIn
 
         'swApp = GetObject(, "SldWorks.Application")
         Do
-            swApp = CType(System.Runtime.InteropServices.Marshal.GetActiveObject("SldWorks.Application"), SldWorks)
+            swApp = Marshal.GetActiveObject("SldWorks.Application.25")
             'Call WaitFor(3)
             Debug.Print("Checking swApp")
         Loop While (swApp Is Nothing)
