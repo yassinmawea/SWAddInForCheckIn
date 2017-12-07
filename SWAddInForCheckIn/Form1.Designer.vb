@@ -24,6 +24,7 @@ Partial Class Form1
     Private Sub InitializeComponent()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.ProgressBar1 = New System.Windows.Forms.ProgressBar()
+        Me.BackgroundWorker1 = New System.ComponentModel.BackgroundWorker()
         Me.SuspendLayout()
         '
         'Label1
@@ -42,6 +43,9 @@ Partial Class Form1
         Me.ProgressBar1.Size = New System.Drawing.Size(321, 23)
         Me.ProgressBar1.TabIndex = 2
         '
+        'BackgroundWorker1
+        '
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
@@ -58,4 +62,5 @@ Partial Class Form1
     End Sub
     Friend WithEvents Label1 As System.Windows.Forms.Label
     Friend WithEvents ProgressBar1 As System.Windows.Forms.ProgressBar
+    Friend WithEvents BackgroundWorker1 As ComponentModel.BackgroundWorker
 End Class
