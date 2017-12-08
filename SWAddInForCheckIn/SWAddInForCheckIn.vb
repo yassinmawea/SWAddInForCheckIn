@@ -99,7 +99,7 @@ Public Class SWAddInForCheckIn
 
     End Sub
 
-    Sub ProgressMessage(ct As CancellationToken)
+    Sub ProgressMessage()
         Dim progressBar As Form1
 
         progressBar = New Form1
