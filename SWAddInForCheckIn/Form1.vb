@@ -88,7 +88,7 @@
 
 
                 If currentValue = 96 Then
-                    currentValue = 1
+                    currentValue = 0
                 End If
 
             Loop Until currentValue = 98
