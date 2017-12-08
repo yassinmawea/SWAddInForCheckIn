@@ -259,10 +259,10 @@ Public Class SWAddInForCheckIn
         Debug.Print("Macro starts")
         'Call WaitFor(3)
 
-        If checkinFromExplorer Then
-        Else
-            boolstatus = swApp.RunMacro2("C:\Program Files\SolidWorks Corp\SWAddInForCheckIn\Sync1.swp", "Sync11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
-        End If
+        'If checkinFromExplorer Then
+        'Else
+        'boolstatus = swApp.RunMacro2("C:\Program Files\SolidWorks Corp\SWAddInForCheckIn\Sync1.swp", "Sync11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
+        'End If
 
         Debug.Print("Macro ends")
         'progressBar.IncreaseValue()
