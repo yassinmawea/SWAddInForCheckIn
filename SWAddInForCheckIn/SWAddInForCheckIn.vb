@@ -285,7 +285,7 @@ Public Class SWAddInForCheckIn
                     swModel = swApp.OpenDoc6(path, swDocumentTypes_e.swDocPART, swOpenDocOptions_e.swOpenDocOptions_Silent, "", iErrors, iWarnings)
                     Debug.Print("what model? -> " & swModel.GetPathName)
                     Debug.Print("Model opened")
-                    syncs.Synchronize()
+                    boolstatus = swApp.RunMacro("C:\Program Files\SolidWorks Corp\SWAddInForCheckIn\Sync1.swp", "Sync11", "main")
                     swApp.QuitDoc("")
                 End If
             ElseIf type.Contains("Assembly") Then
