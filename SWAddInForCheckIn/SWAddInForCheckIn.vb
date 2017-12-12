@@ -191,7 +191,7 @@ Public Class SWAddInForCheckIn
         Dim vConfigNameArr As Array
         Dim confname As String
         Dim completeMessage As Form2
-        Dim syncs As EnoviaSWAddIn
+        Dim syncs As EnoviaSWAddIn = New EnoviaSWAddIn
         Dim type As String
         'Dim progressBar As Form1
 
@@ -285,11 +285,13 @@ Public Class SWAddInForCheckIn
                     swModel = swApp.OpenDoc6(path, swDocumentTypes_e.swDocPART, swOpenDocOptions_e.swOpenDocOptions_Silent, "", iErrors, iWarnings)
                     Debug.Print("what model? -> " & swModel.GetPathName)
                     Debug.Print("Model opened")
+                    syncs.Synchronize()
                     swApp.QuitDoc("")
                 End If
             ElseIf type.Contains("Assembly") Then
                 If item.GetProperty(EnoSelItemProp.Enospi_CheckIn) = True Then
                     swAssembly = swApp.OpenDoc6(path, swDocumentTypes_e.swDocASSEMBLY, swOpenDocOptions_e.swOpenDocOptions_Silent, "", iErrors, iWarnings)
+                    syncs.Synchronize()
                     'swModel = swApp.ActivateDoc3(filenameFull, False, swRebuildOnActivation_e.swDontRebuildActiveDoc, iErrors)
                     swApp.QuitDoc("")
                 End If
@@ -322,6 +324,7 @@ Public Class SWAddInForCheckIn
                     swDraw = swApp.OpenDoc6(filenameFullForerver, swDocumentTypes_e.swDocDRAWING, swOpenDocOptions_e.swOpenDocOptions_Silent, "", iErrors, iWarnings)
                     swModel = swApp.ActivateDoc3(Dir(filenameFullForerver), True, swRebuildOnActivation_e.swRebuildActiveDoc, iErrors)
                     Debug.Print("swDrawing Path -> " + swModel.GetPathName())
+                    syncs.Synchronize()
                     'swModel = swApp.ActivateDoc3(Dir(filenameFullForerver), False, swRebuildOnActivation_e.swDontRebuildActiveDoc, iErrors)
 
                     boolstatus = swApp.RunMacro2("C:\Program Files\SolidWorks Corp 2017\swAddInForCheckIn\PDFDXFMacro_Alt.swp", "Personal11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
