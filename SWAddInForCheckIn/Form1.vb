@@ -38,8 +38,8 @@
                 Debug.Print("currentValue -> " & currentValue)
 
 
-                If currentValue = 99 Then
-                    currentValue = 1
+                If currentValue = 100 Then
+                    currentValue = 0
                 End If
 
             Loop Until currentValue = 111
@@ -88,7 +88,7 @@
 
 
                 If currentValue = 96 Then
-                    currentValue = 1
+                    currentValue = 0
                 End If
 
             Loop Until currentValue = 98
