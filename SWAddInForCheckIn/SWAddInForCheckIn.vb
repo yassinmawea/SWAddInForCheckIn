@@ -250,7 +250,7 @@ Public Class SWAddInForCheckIn
 
         'swApp = GetObject(, "SldWorks.Application")
         Do
-            swApp = CType(System.Runtime.InteropServices.Marshal.GetActiveObject("SldWorks.Application"), SldWorks)
+            swApp = CType(System.Runtime.InteropServices.Marshal.GetActiveObject("SldWorks.Application.25"), SldWorks)
             'Call WaitFor(3)
             Debug.Print("Checking swApp")
         Loop While (swApp Is Nothing)
@@ -288,7 +288,7 @@ Public Class SWAddInForCheckIn
                     Thread.Sleep(1000)
                     Debug.Print("what model? -> " & swModel.GetPathName)
                     Debug.Print("Model opened")
-                    boolstatus = swApp.RunMacro("C:\Program Files\SolidWorks Corp 2017\SWAddInForCheckIn\Sync1.swp", "Sync11", "main")
+                    boolstatus = swApp.RunMacro("C:\Program Files\SolidWorks Corp\SWAddInForCheckIn\Sync1.swp", "Sync11", "main")
                     swApp.QuitDoc("")
                 End If
             ElseIf type.Contains("Assembly") Then
@@ -296,7 +296,7 @@ Public Class SWAddInForCheckIn
                     swAssembly = swApp.OpenDoc6(path, swDocumentTypes_e.swDocASSEMBLY, swOpenDocOptions_e.swOpenDocOptions_Silent, "", iErrors, iWarnings)
                     swModel = swApp.ActivateDoc3(filenameFull, False, swRebuildOnActivation_e.swDontRebuildActiveDoc, iErrors)
                     Thread.Sleep(1000)
-                    boolstatus = swApp.RunMacro("C:\Program Files\SolidWorks Corp 2017\SWAddInForCheckIn\Sync1.swp", "Sync11", "main")
+                    boolstatus = swApp.RunMacro("C:\Program Files\SolidWorks Corp\SWAddInForCheckIn\Sync1.swp", "Sync11", "main")
                     'swModel = swApp.ActivateDoc3(filenameFull, False, swRebuildOnActivation_e.swDontRebuildActiveDoc, iErrors)
                     swApp.QuitDoc("")
                 End If
@@ -330,7 +330,7 @@ Public Class SWAddInForCheckIn
                     swModel = swApp.ActivateDoc3(Dir(filenameFullForerver), True, swRebuildOnActivation_e.swRebuildActiveDoc, iErrors)
                     Debug.Print("swDrawing Path -> " + swModel.GetPathName())
                     Thread.Sleep(1000)
-                    boolstatus = swApp.RunMacro("C:\Program Files\SolidWorks Corp 2017\SWAddInForCheckIn\Sync1.swp", "Sync11", "main")
+                    boolstatus = swApp.RunMacro("C:\Program Files\SolidWorks Corp\SWAddInForCheckIn\Sync1.swp", "Sync11", "main")
                     'swModel = swApp.ActivateDoc3(Dir(filenameFullForerver), False, swRebuildOnActivation_e.swDontRebuildActiveDoc, iErrors)
 
                     boolstatus = swApp.RunMacro2("C:\Program Files\SolidWorks Corp\SWAddInForCheckIn\PDFDXFMacro_Alt.swp", "Personal11", "main", swRunMacroOption_e.swRunMacroUnloadAfterRun, lErrors)
