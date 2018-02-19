@@ -337,7 +337,8 @@ Public Class SWAddInForCheckIn
 
                     ' Invoke JPO to upload PDF and DXF to server
                     UploadPDFDXFtoENOVIA(server, item)
-
+                    ' Debug.Print("Closing Doc")
+                    ' swApp.CloseDoc(swModel.GetTitle())
                     ' Increase progress as method is done
                 End If
             End If
@@ -346,6 +347,12 @@ Public Class SWAddInForCheckIn
 
         Next
         'swApp.UserControl = True
+
+        'Close all document including unsaved documents
+        swApp.CloseAllDocuments(True)
+
+        'Clear Local Cache for all the parts/assembly in the selection list
+        ClearLocalCache(sel, server)
 
         ' If SW was not opened in the first place, then  close SW.
         If checkinFromExplorer = True Then
@@ -360,6 +367,14 @@ Public Class SWAddInForCheckIn
 
     End Sub
 
+    Sub ClearLocalCache(ByVal selection As IEnoSelection, ByVal server As IEnoServer)
+        Dim clc As IEnoClearLocalCache
 
+        clc = server.CreateUtility(EnoObjectType.EnoObj_EnoClearLocalCache)
+        clc.AddSelection(selection)
+        clc.IgnoreToolboxFiles = True
+        clc.Commit()
+
+    End Sub
 
 End Class

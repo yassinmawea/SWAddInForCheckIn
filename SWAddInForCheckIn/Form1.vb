@@ -95,6 +95,7 @@
 
         Catch ex As Exception
             Close()
+            e.Cancel = True
 
         End Try
 
