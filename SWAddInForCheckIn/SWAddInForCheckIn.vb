@@ -349,6 +349,12 @@ Public Class SWAddInForCheckIn
         Next
         'swApp.UserControl = True
 
+        'Close all document including unsaved documents
+        swApp.CloseAllDocuments(True)
+
+        'Clear Local Cache for all the parts/assembly in the selection list
+        ClearLocalCache(sel, server)
+
         ' If SW was not opened in the first place, then  close SW.
         If checkinFromExplorer = True Then
             myProcess.Kill()
@@ -362,6 +368,14 @@ Public Class SWAddInForCheckIn
 
     End Sub
 
+    Sub ClearLocalCache(ByVal selection As IEnoSelection, ByVal server As IEnoServer)
+        Dim clc As IEnoClearLocalCache
 
+        clc = server.CreateUtility(EnoObjectType.EnoObj_EnoClearLocalCache)
+        clc.AddSelection(selection)
+        clc.IgnoreToolboxFiles = True
+        clc.Commit()
+
+    End Sub
 
 End Class
