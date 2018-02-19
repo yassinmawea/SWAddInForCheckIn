@@ -94,8 +94,10 @@
         Catch ex As Exception
             Debug.Print("In Exception")
             Close()
+            BackgroundWorker1.CancelAsync()
             e.Cancel = True
-
+            BackgroundWorker1.ReportProgress(100)
+            Debug.Print("Exception end")
         End Try
 
 
