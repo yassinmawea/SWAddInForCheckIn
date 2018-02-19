@@ -85,7 +85,7 @@ Public Class SWAddInForCheckIn
 
             Await Task.Run(Sub() MainProgram(poCmd))
             t1.Abort()
-            t1 = Nothing
+            't1 = Nothing
             Debug.Print("After Abort T1")
             t2 = New Thread(AddressOf CompleteMessage)
             t2.SetApartmentState(ApartmentState.STA)
@@ -99,16 +99,19 @@ Public Class SWAddInForCheckIn
 
     End Sub
 
-    Sub ProgressMessage(ct As CancellationToken)
-        Dim progressBar As Form1
+    Sub ProgressMessage()
+        'Dim progressBar As Form1
 
-        progressBar = New Form1
-        Application.Run(progressBar)
-        Thread.Sleep(1000)
+        Try
+            progressBar = New Form1
+            Application.Run(progressBar)
+            Thread.Sleep(1000)
 
-        'progressBar.TopMost = True
-        'progressBar.DrawingCount(count)
-        'progressBar.Open()
+        Catch ex As Exception
+            Debug.Print("In Exception Prgress Message")
+            progressBar.Close()
+            Debug.Print("In Exception Prgress Message End")
+        End Try
     End Sub
 
     Async Sub CompleteMessage()
@@ -345,6 +348,12 @@ Public Class SWAddInForCheckIn
         Next
         'swApp.UserControl = True
 
+        'Close all document including unsaved documents
+        swApp.CloseAllDocuments(True)
+
+        'Clear Local Cache for all the parts/assembly in the selection list
+        ClearLocalCache(sel, server)
+
         ' If SW was not opened in the first place, then  close SW.
         If checkinFromExplorer = True Then
             myProcess.Kill()
@@ -358,6 +367,14 @@ Public Class SWAddInForCheckIn
 
     End Sub
 
+    Sub ClearLocalCache(ByVal selection As IEnoSelection, ByVal server As IEnoServer)
+        Dim clc As IEnoClearLocalCache
 
+        clc = server.CreateUtility(EnoObjectType.EnoObj_EnoClearLocalCache)
+        clc.AddSelection(selection)
+        clc.IgnoreToolboxFiles = True
+        clc.Commit()
+
+    End Sub
 
 End Class
