@@ -15,8 +15,6 @@
         BackgroundWorker1.WorkerReportsProgress = True
 
         BackgroundWorker1.RunWorkerAsync()
-
-
     End Sub
 
     Public Sub Open()
@@ -54,18 +52,16 @@
         'End If
     End Sub
 
-    Public Sub CloseForm()
-        Close()
+    Private Sub Form1_Close(sender As Object, e As EventArgs) Handles MyBase.FormClosed
+        Debug.Print("In Close")
+        BackgroundWorker1.CancelAsync()
+        'BackgroundWorker1.ReportProgress(100)
     End Sub
 
     Public Sub DrawingCount(num As Integer)
         MaxValue = num
     End Sub
 
-    Public Sub IncreaseValue()
-        'currentValue = currentValue + 1
-        'ProgressBar1.Increment(1)
-    End Sub
 
     Private Sub BackgroundWorker1_DoWork(sender As Object, e As ComponentModel.DoWorkEventArgs) Handles BackgroundWorker1.DoWork
         Debug.Print("In Open ")
@@ -81,22 +77,27 @@
 
                 BackgroundWorker1.ReportProgress(currentValue)
 
-
                 Refresh()
 
                 Debug.Print("currentValue -> " & currentValue)
-
 
                 If currentValue = 96 Then
                     currentValue = 0
                 End If
 
-            Loop Until currentValue = 98
+                Debug.Print("Visible -> " & Visible)
+
+            Loop Until Not Visible
+
+
 
         Catch ex As Exception
+            Debug.Print("In Exception")
             Close()
+            BackgroundWorker1.CancelAsync()
             e.Cancel = True
-
+            BackgroundWorker1.ReportProgress(100)
+            Debug.Print("Exception end")
         End Try
 
 

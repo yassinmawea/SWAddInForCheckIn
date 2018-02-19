@@ -86,7 +86,7 @@ Public Class SWAddInForCheckIn
 
             Await Task.Run(Sub() MainProgram(poCmd))
             t1.Abort()
-            t1 = Nothing
+            't1 = Nothing
             Debug.Print("After Abort T1")
             t2 = New Thread(AddressOf CompleteMessage)
             t2.SetApartmentState(ApartmentState.STA)
@@ -101,15 +101,18 @@ Public Class SWAddInForCheckIn
     End Sub
 
     Sub ProgressMessage()
-        Dim progressBar As Form1
+        'Dim progressBar As Form1
 
-        progressBar = New Form1
-        Application.Run(progressBar)
-        Thread.Sleep(1000)
+        Try
+            progressBar = New Form1
+            Application.Run(progressBar)
+            Thread.Sleep(1000)
 
-        'progressBar.TopMost = True
-        'progressBar.DrawingCount(count)
-        'progressBar.Open()
+        Catch ex As Exception
+            Debug.Print("In Exception Prgress Message")
+            progressBar.Close()
+            Debug.Print("In Exception Prgress Message End")
+        End Try
     End Sub
 
     Async Sub CompleteMessage()
